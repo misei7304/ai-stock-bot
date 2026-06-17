@@ -47,19 +47,36 @@ def analyze_strategy_performance():
 
     print("\n추천 종목별 성과")
 
-    sorted_stats = sorted(
-        stock_stats.items(),
-        key=lambda x: x[1]["count"],
-        reverse=True
-    )
+    ranking = []
 
-    for company_name, stats in sorted_stats:
+    for company_name, stats in stock_stats.items():
 
         count = stats["count"]
         average_return = stats["total_return"] / count
         success_rate = (stats["success_count"] / count) * 100
 
-        print(f"\n{company_name}")
-        print(f"추천횟수: {count}회")
-        print(f"평균수익률: {average_return:.2f}%")
-        print(f"성공률: {success_rate:.2f}%")
+        ranking.append({
+            "company_name": company_name,
+            "count": count,
+            "average_return": average_return,
+            "success_rate": success_rate,
+        })
+
+    ranking = sorted(
+        ranking,
+        key=lambda x: x["average_return"],
+        reverse=True
+    )
+
+    print("\n종목별 성과 랭킹")
+
+    rank = 1
+
+    for stock in ranking:
+
+        print(f"\n{rank}위 {stock['company_name']}")
+        print(f"추천횟수: {stock['count']}회")
+        print(f"평균수익률: {stock['average_return']:.2f}%")
+        print(f"성공률: {stock['success_rate']:.2f}%")
+
+        rank += 1
