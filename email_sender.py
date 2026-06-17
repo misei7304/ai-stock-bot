@@ -14,7 +14,7 @@ EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
 TO_EMAIL = os.getenv("TO_EMAIL")
 
 
-def send_email(best_stock, buy_candidates):
+def send_email(best_stock, buy_candidates, market_result):
 
     subject = "AI Stock Bot Daily Report"
 
@@ -60,6 +60,13 @@ def send_email(best_stock, buy_candidates):
 
     body = f"""
 AI Stock Bot Daily Report
+
+[시장 상황]
+
+시장: {market_result['market_name']}
+현재가: {market_result['current_price']:,.2f}
+MA20: {market_result['ma20']:,.2f}
+시장 상태: {"상승장" if market_result["is_market_bull"] else "하락장 또는 약세장"}
 
 [최종 추천 종목]
 
