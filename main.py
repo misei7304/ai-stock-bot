@@ -13,6 +13,7 @@ from history import save_history
 from history_analyzer import analyze_history
 from performance import analyze_recommendation_performance
 from email_sender import send_email
+from strategy_performance import analyze_strategy_performance
 
 
 results = []
@@ -139,3 +140,4 @@ else:
 save_report(results)
 analyze_history()
 analyze_recommendation_performance()
+analyze_strategy_performance()
