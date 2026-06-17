@@ -14,6 +14,9 @@ The program:
 * Generates CSV reports
 * Saves recommendation history
 * Tracks recommendation performance
+* Updates current return automatically
+* Analyzes strategy performance
+* Ranks stock performance by average return
 * Sends daily email reports
 * Calculates position sizing based on available capital
 * Runs automatically every day
@@ -95,13 +98,15 @@ Risk Management
 
 Position sizing:
 
-* Capital: 1,000,000 KRW
-* Risk Allocation: 30%
-* Automatically calculates:
-    * Available investment amount
-    * Number of shares that can be purchased
-    * Actual investment amount
-    * Buy availability
+* Capital: configurable through .env
+* Risk Allocation: configurable through .env
+
+Automatically calculates:
+
+* Available investment amount
+* Number of shares that can be purchased
+* Actual investment amount
+* Buy availability
 
 Recommendation Logic
 
@@ -137,6 +142,7 @@ Tracks:
 * 1-day return
 * 5-day return
 * 20-day return
+* Updates current return in history.csv
 
 Strategy Performance Summary
 
@@ -144,6 +150,13 @@ Tracks:
 
 * Total recommendation count
 * Recommendation count by stock
+* Average return by stock
+* Success rate by stock
+* Stock performance ranking by average return
+
+Success condition:
+
+* Current return > 0
 
 Email Notification
 
@@ -175,6 +188,36 @@ Execution script:
 
 ⸻
 
+Environment Variables
+
+Create a .env file:
+
+EMAIL_ADDRESS=your_email@example.com
+EMAIL_PASSWORD=your_password
+TO_EMAIL=your_email@example.com
+CAPITAL=1000000
+RISK_RATIO=0.3
+
+Variables
+
+Variable	Description
+EMAIL_ADDRESS	Sender email address
+EMAIL_PASSWORD	Email password or app password
+TO_EMAIL	Recipient email address
+CAPITAL	Total available capital
+RISK_RATIO	Percentage of capital allocated per trade
+
+Example:
+
+CAPITAL=1000000
+RISK_RATIO=0.3
+
+Available investment amount:
+
+1,000,000 × 30% = 300,000 KRW
+
+⸻
+
 Example Output
 
 * Buy Candidate Ranking
@@ -183,6 +226,7 @@ Example Output
 * Recommendation History Summary
 * Recommendation Performance Tracking
 * Strategy Performance Summary
+* Stock Performance Ranking
 * Risk Management Summary
 * Daily Email Report
 
@@ -214,3 +258,5 @@ Future Improvements
 * AI-Based Stock Selection
 * Portfolio Rebalancing
 * Market Regime Detection
+* Database Integration
+* Web Dashboard
