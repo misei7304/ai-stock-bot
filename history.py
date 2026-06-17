@@ -45,7 +45,8 @@ def save_history(best_stock):
                 "최종점수",
                 "RSI",
                 "승률",
-                "평균수익률"
+                "평균수익률",
+                "현재수익률"
             ])
 
         writer.writerow([
@@ -56,7 +57,8 @@ def save_history(best_stock):
             round(best_stock["final_score"], 2),
             round(best_stock["rsi"], 2),
             round(best_stock["win_rate"], 2),
-            round(best_stock["average_return"], 2)
+            round(best_stock["average_return"], 2),
+            0
         ])
 
     print("히스토리 저장 완료")
