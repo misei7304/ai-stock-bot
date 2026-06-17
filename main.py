@@ -16,7 +16,11 @@ from email_sender import send_email
 from strategy_performance import analyze_strategy_performance
 from risk import calculate_position
 from market import analyze_market
+from database import initialize_database
+from database import save_recommendation_to_database
 
+
+initialize_database()
 
 market_result = analyze_market()
 
@@ -201,6 +205,7 @@ else:
         print("매수 불가능")
 
     save_history(best_stock)
+    save_recommendation_to_database(best_stock)
     send_email(best_stock, buy_candidates, market_result)
 
 
