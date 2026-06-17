@@ -5,4 +5,7 @@ __pycache__/
 stock_report.csv
 history.csv
 
+log.txt
+error.log
+
 .DS_Store
