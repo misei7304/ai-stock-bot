@@ -9,10 +9,17 @@ def backtest(data):
         ma5 = data["MA5"].iloc[i]
         ma20 = data["MA20"].iloc[i]
 
+        rsi = data["RSI"].iloc[i]
+
         macd = data["MACD"].iloc[i]
         macd_signal = data["MACD_SIGNAL"].iloc[i]
 
-        if current_price > ma5 and ma5 > ma20 and macd > macd_signal:
+        if (
+            current_price > ma5
+            and ma5 > ma20
+            and rsi < 70
+            and macd > macd_signal
+        ):
 
             buy_price = current_price
 
