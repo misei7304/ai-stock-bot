@@ -87,6 +87,9 @@ else:
             f"볼린저상단 {stock['bollinger_upper']:,.0f} | "
             f"볼린저하단 {stock['bollinger_lower']:,.0f} | "
             f"볼린저점수 {stock['bollinger_score']} | "
+            f"ATR {stock['atr']:,.0f} | "
+            f"ATR% {stock['atr_percent']:.2f}% | "
+            f"ATR점수 {stock['atr_score']} | "
             f"승률 {stock['win_rate']:.2f}% | "
             f"평균수익 {stock['average_return']:.2f}% | "
             f"최종자산 {stock['final_money']:,.0f}원"
@@ -154,6 +157,9 @@ else:
     print(f"볼린저 중간: {best_stock['bollinger_middle']:,.0f}원")
     print(f"볼린저 하단: {best_stock['bollinger_lower']:,.0f}원")
     print(f"볼린저 점수: {best_stock['bollinger_score']}")
+    print(f"ATR: {best_stock['atr']:,.0f}원")
+    print(f"ATR%: {best_stock['atr_percent']:.2f}%")
+    print(f"ATR 점수: {best_stock['atr_score']}")
     print(f"백테스트 승률: {best_stock['win_rate']:.2f}%")
     print(f"백테스트 평균수익: {best_stock['average_return']:.2f}%")
     print(f"백테스트 최종자산: {best_stock['final_money']:,.0f}원")

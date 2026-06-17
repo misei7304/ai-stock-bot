@@ -49,6 +49,34 @@ def calculate_bollinger_bands(data, period=20):
     return data
 
 
+def calculate_atr(data, period=14):
+    high_low = data["High"] - data["Low"]
+
+    high_close = (
+        data["High"] - data["Close"].shift()
+    ).abs()
+
+    low_close = (
+        data["Low"] - data["Close"].shift()
+    ).abs()
+
+    data["TR"] = high_low
+
+    data["TR"] = data[["TR"]].join(
+        high_close.rename("HIGH_CLOSE")
+    ).join(
+        low_close.rename("LOW_CLOSE")
+    ).max(axis=1)
+
+    data["ATR"] = data["TR"].rolling(period).mean()
+
+    data["ATR_PERCENT"] = (
+        data["ATR"] / data["Close"]
+    ) * 100
+
+    return data
+
+
 def calculate_indicators(data):
     data["MA5"] = data["Close"].rolling(5).mean()
     data["MA20"] = data["Close"].rolling(20).mean()
@@ -59,5 +87,6 @@ def calculate_indicators(data):
     data = calculate_rsi(data)
     data = calculate_macd(data)
     data = calculate_bollinger_bands(data)
+    data = calculate_atr(data)
 
     return data

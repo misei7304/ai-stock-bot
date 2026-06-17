@@ -18,6 +18,9 @@ def analyze_stock(data, company_name):
     bollinger_middle = data["BOLLINGER_MIDDLE"].iloc[-1]
     bollinger_lower = data["BOLLINGER_LOWER"].iloc[-1]
 
+    atr = data["ATR"].iloc[-1]
+    atr_percent = data["ATR_PERCENT"].iloc[-1]
+
     price_score = ((ma5 - ma20) / ma20) * 100
     volume_score = ((volume_ma5 - volume_ma20) / volume_ma20) * 100
 
@@ -33,11 +36,19 @@ def analyze_stock(data, company_name):
     elif current_price >= bollinger_upper * 0.95:
         bollinger_score = -3
 
+    atr_score = 0
+
+    if atr_percent <= 2:
+        atr_score = 2
+    elif atr_percent >= 6:
+        atr_score = -3
+
     total_score = (
         price_score
         + (volume_score * 0.3)
         + macd_score
         + bollinger_score
+        + atr_score
     )
 
     is_buy_candidate = (
@@ -61,6 +72,9 @@ def analyze_stock(data, company_name):
         "bollinger_middle": bollinger_middle,
         "bollinger_lower": bollinger_lower,
         "bollinger_score": bollinger_score,
+        "atr": atr,
+        "atr_percent": atr_percent,
+        "atr_score": atr_score,
         "total_score": total_score,
         "rsi": rsi,
         "is_buy_candidate": is_buy_candidate,
