@@ -24,6 +24,29 @@ sector_map = {
     "하나금융지주": "금융",
 }
 
+def get_sector_name(company_name):
+    return sector_map.get(company_name, "기타")
+
+
+def calculate_sector_bonus(sector_name, sector_ranking):
+
+    for index, sector in enumerate(sector_ranking):
+
+        if sector["sector_name"] == sector_name:
+
+            if index == 0:
+                return 5
+
+            if index == 1:
+                return 3
+
+            if index == 2:
+                return 2
+
+            return 0
+
+    return 0
+
 
 def analyze_sector_performance(results):
 

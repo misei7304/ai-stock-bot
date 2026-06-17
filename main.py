@@ -19,6 +19,9 @@ from market import analyze_market
 from database import initialize_database
 from database import save_recommendation_to_database
 from sector import print_sector_performance
+from sector import analyze_sector_performance
+from sector import get_sector_name
+from sector import calculate_sector_bonus
 
 
 initialize_database()
@@ -73,6 +76,16 @@ for ticker, company_name in stocks:
 
     results.append(result)
 
+sector_ranking = analyze_sector_performance(results)
+
+for stock in results:
+    sector_name = get_sector_name(stock["company_name"])
+    sector_bonus = calculate_sector_bonus(sector_name, sector_ranking)
+
+    stock["sector_name"] = sector_name
+    stock["sector_bonus"] = sector_bonus
+    stock["final_score"] = stock["final_score"] + sector_bonus
+
 
 print("\n" + "#" * 80)
 print("현재 매수 후보 순위")
@@ -105,6 +118,8 @@ else:
             f"종목코드 {stock['ticker']} | "
             f"현재가 {stock['current_price']:,.0f}원 | "
             f"최종점수 {stock['final_score']:.2f} | "
+            f"섹터 {stock['sector_name']} | "
+            f"섹터보너스 {stock['sector_bonus']} | "
             f"현재점수 {stock['total_score']:.2f} | "
             f"RSI {stock['rsi']:.2f} | "
             f"MACD {stock['macd']:.2f} | "
@@ -177,6 +192,8 @@ else:
     print(f"종목코드: {best_stock['ticker']}")
     print(f"현재가: {best_stock['current_price']:,.0f}원")
     print(f"최종점수: {best_stock['final_score']:.2f}")
+    print(f"섹터: {best_stock['sector_name']}")
+    print(f"섹터 보너스: {best_stock['sector_bonus']}")
     print(f"현재점수: {best_stock['total_score']:.2f}")
     print(f"RSI: {best_stock['rsi']:.2f}")
     print(f"MACD: {best_stock['macd']:.2f}")
