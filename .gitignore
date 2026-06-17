@@ -4,6 +4,7 @@ __pycache__/
 
 stock_report.csv
 history.csv
+stock_bot.db
 
 log.txt
 error.log
