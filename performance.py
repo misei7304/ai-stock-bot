@@ -37,15 +37,22 @@ def analyze_recommendation_performance():
             fieldnames.append("현재수익률")
 
         for row in reader:
-            recommendation_date = pd.to_datetime(row["날짜"])
+            recommendation_date = pd.to_datetime(row["날짜"]).date()
             company_name = row["종목명"]
             ticker = row["종목코드"]
             recommended_price = float(row["현재가"])
 
             data = get_stock_data(ticker, period="1y")
 
+            data = data.dropna(subset=["Close"])
+
+            if data.empty:
+                print(f"{row['날짜']} | {company_name} | 가격 데이터 없음")
+                updated_rows.append(row)
+                continue
+
             data = data.reset_index()
-            data["Date"] = pd.to_datetime(data["Date"]).dt.tz_localize(None)
+            data["Date"] = pd.to_datetime(data["Date"]).dt.tz_localize(None).dt.date
 
             after_recommendation = data[
                 data["Date"] >= recommendation_date
@@ -57,6 +64,10 @@ def analyze_recommendation_performance():
                 continue
 
             current_price = after_recommendation["Close"].iloc[-1]
+            if pd.isna(current_price):
+                print(f"{row['날짜']} | {company_name} | 현재가 데이터 없음")
+                updated_rows.append(row)
+                continue
             current_return = calculate_return(
                 current_price,
                 recommended_price

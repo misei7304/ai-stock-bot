@@ -1,5 +1,6 @@
 import csv
 import os
+import pandas as pd
 
 
 def analyze_strategy_performance():
@@ -28,7 +29,15 @@ def analyze_strategy_performance():
             recommendation_count += 1
 
             company_name = row["종목명"]
-            current_return = float(row.get("현재수익률", 0))
+            current_return_text = row.get("현재수익률", "")
+
+            if current_return_text == "":
+                continue
+
+            current_return = float(current_return_text)
+
+            if pd.isna(current_return):
+                continue
 
             if company_name not in stock_stats:
                 stock_stats[company_name] = {
@@ -69,6 +78,10 @@ def analyze_strategy_performance():
     )
 
     print("\n종목별 성과 랭킹")
+
+    if len(ranking) == 0:
+        print("분석 가능한 전략 성과 데이터가 없습니다.")
+        return
 
     rank = 1
 

@@ -1,3 +1,5 @@
+import pandas as pd
+
 from data import get_stock_data
 from data import calculate_indicators
 
@@ -26,6 +28,7 @@ from database_analyzer import analyze_database_recommendations
 from performance_db import update_recommendation_performance
 from real_performance import analyze_real_performance
 from market_performance import analyze_market_performance
+from sector_real_performance import analyze_sector_real_performance
 
 
 initialize_database()
@@ -69,6 +72,9 @@ for ticker, company_name in stocks:
 
     result["final_money"] = account_result["final_money"]
     result["profit"] = account_result["profit"]
+
+    if pd.isna(result["total_score"]):
+        result["total_score"] = 0
 
     final_score = (
         result["total_score"] * 0.5
@@ -240,3 +246,4 @@ analyze_database_recommendations()
 update_recommendation_performance()
 analyze_real_performance()
 analyze_market_performance()
+analyze_sector_real_performance()

@@ -1,3 +1,5 @@
+import pandas as pd
+
 sector_map = {
     "삼성전자": "반도체",
     "SK하이닉스": "반도체",
@@ -53,6 +55,9 @@ def analyze_sector_performance(results):
     sector_stats = {}
 
     for stock in results:
+        if pd.isna(stock["final_score"]):
+            continue
+
         company_name = stock["company_name"]
         sector_name = sector_map.get(company_name, "기타")
 
@@ -108,6 +113,10 @@ def print_sector_performance(results):
     print("\n" + "#" * 80)
     print("섹터별 성과 분석")
     print("#" * 80)
+
+    if len(sector_ranking) == 0:
+        print("분석 가능한 섹터 데이터가 없습니다.")
+        return
 
     rank = 1
 
