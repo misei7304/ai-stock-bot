@@ -15,6 +15,23 @@ from performance import analyze_recommendation_performance
 from email_sender import send_email
 from strategy_performance import analyze_strategy_performance
 from risk import calculate_position
+from market import analyze_market
+
+
+market_result = analyze_market()
+
+print("\n" + "#" * 80)
+print("시장 상황 분석")
+print("#" * 80)
+
+print(f"시장: {market_result['market_name']}")
+print(f"현재가: {market_result['current_price']:,.2f}")
+print(f"MA20: {market_result['ma20']:,.2f}")
+
+if market_result["is_market_bull"]:
+    print("시장 상태: 상승장")
+else:
+    print("시장 상태: 하락장 또는 약세장")
 
 
 results = []
@@ -59,7 +76,7 @@ print("#" * 80)
 buy_candidates = []
 
 for stock in results:
-    if stock["is_buy_candidate"]:
+    if stock["is_buy_candidate"] and market_result["is_market_bull"]:
         buy_candidates.append(stock)
 
 buy_candidates = sorted(
@@ -70,6 +87,9 @@ buy_candidates = sorted(
 
 if len(buy_candidates) == 0:
     print("현재 매수 후보가 없습니다.")
+
+    if not market_result["is_market_bull"]:
+        print("이유: 현재 KOSPI가 MA20 아래에 있어 시장 상태가 약세장입니다.")
 else:
     rank = 1
 
@@ -138,7 +158,11 @@ for stock in buy_candidates:
 
 if len(affordable_candidates) == 0:
     print("현재 최종 추천 가능한 종목이 없습니다.")
-    print("이유: 매수 후보는 있지만 현재 자본 기준으로 살 수 있는 종목이 없습니다.")
+
+    if not market_result["is_market_bull"]:
+        print("이유: 시장 상태가 약세장이라 매수 후보를 차단했습니다.")
+    else:
+        print("이유: 매수 후보는 있지만 현재 자본 기준으로 살 수 있는 종목이 없습니다.")
 
 else:
     best_stock = affordable_candidates[0]
