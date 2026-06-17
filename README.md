@@ -107,6 +107,12 @@ Exit rules:
 * Stop Loss: -5%
 * Maximum Holding Period: 5 Days
 
+Trading costs:
+
+* Buy Fee: configurable through .env
+* Sell Fee: configurable through .env
+* Applied automatically during backtesting
+
 Account Simulation
 
 Starting Capital:
@@ -241,8 +247,12 @@ Create a .env file:
 EMAIL_ADDRESS=your_email@example.com
 EMAIL_PASSWORD=your_password
 TO_EMAIL=your_email@example.com
+
 CAPITAL=1000000
 RISK_RATIO=0.3
+
+BUY_FEE_RATE=0.00015
+SELL_FEE_RATE=0.00195
 
 Variables
 
@@ -252,15 +262,23 @@ EMAIL_PASSWORD	Email password or app password
 TO_EMAIL	Recipient email address
 CAPITAL	Total available capital
 RISK_RATIO	Percentage of capital allocated per trade
+BUY_FEE_RATE	Buy-side trading fee rate
+SELL_FEE_RATE	Sell-side trading fee and tax rate
 
 Example:
 
 CAPITAL=1000000
 RISK_RATIO=0.3
+BUY_FEE_RATE=0.00015
+SELL_FEE_RATE=0.00195
 
 Available investment amount:
 
 1,000,000 × 30% = 300,000 KRW
+
+Trading cost per round trip:
+
+0.015% + 0.195% = 0.21%
 
 ⸻
 
