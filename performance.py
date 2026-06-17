@@ -11,7 +11,9 @@ def calculate_return(target_price, recommended_price):
 
 def analyze_recommendation_performance():
 
-    if not os.path.exists("history.csv"):
+    file_name = "history.csv"
+
+    if not os.path.exists(file_name):
         print("history.csv 파일이 없습니다.")
         return
 
@@ -19,13 +21,20 @@ def analyze_recommendation_performance():
     print("추천 후 수익률 추적")
     print("#" * 80)
 
+    updated_rows = []
+
     with open(
-        "history.csv",
+        file_name,
         "r",
         encoding="utf-8-sig"
     ) as file:
 
         reader = csv.DictReader(file)
+
+        fieldnames = reader.fieldnames
+
+        if "현재수익률" not in fieldnames:
+            fieldnames.append("현재수익률")
 
         for row in reader:
             recommendation_date = pd.to_datetime(row["날짜"])
@@ -44,6 +53,7 @@ def analyze_recommendation_performance():
 
             if len(after_recommendation) == 0:
                 print(f"{row['날짜']} | {company_name} | 추천 이후 데이터 없음")
+                updated_rows.append(row)
                 continue
 
             current_price = after_recommendation["Close"].iloc[-1]
@@ -51,6 +61,8 @@ def analyze_recommendation_performance():
                 current_price,
                 recommended_price
             )
+
+            row["현재수익률"] = round(current_return, 2)
 
             print(
                 f"{row['날짜']} | "
@@ -89,3 +101,22 @@ def analyze_recommendation_performance():
                 print(f"  20거래일 후 수익률: {twenty_day_return:.2f}%")
             else:
                 print("  20거래일 후 수익률: 데이터 부족")
+
+            updated_rows.append(row)
+
+    with open(
+        file_name,
+        "w",
+        newline="",
+        encoding="utf-8-sig"
+    ) as file:
+
+        writer = csv.DictWriter(
+            file,
+            fieldnames=fieldnames
+        )
+
+        writer.writeheader()
+        writer.writerows(updated_rows)
+
+    print("\n현재수익률 업데이트 완료")
