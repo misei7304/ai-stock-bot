@@ -226,7 +226,7 @@ else:
         print("매수 불가능")
 
     save_history(best_stock)
-    save_recommendation_to_database(best_stock)
+    save_recommendation_to_database(best_stock, market_result)
     send_email(best_stock, buy_candidates, market_result)
 
 

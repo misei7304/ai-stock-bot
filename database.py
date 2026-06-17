@@ -37,6 +37,10 @@ def initialize_database():
             final_money REAL,
             quantity INTEGER,
             investment_amount REAL,
+            sector_name TEXT,
+            sector_bonus REAL,
+            market_name TEXT,
+            market_bull INTEGER,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
@@ -62,7 +66,7 @@ def initialize_database():
     connection.close()
 
 
-def save_recommendation_to_database(stock):
+def save_recommendation_to_database(stock, market_result):
     connection = get_connection()
     cursor = connection.cursor()
 
@@ -107,11 +111,15 @@ def save_recommendation_to_database(stock):
             average_return,
             final_money,
             quantity,
-            investment_amount
+            investment_amount,
+            sector_name,
+            sector_bonus,
+            market_name,
+            market_bull
         )
         VALUES (
             DATE('now', 'localtime'),
-            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
         )
     """, (
         stock["company_name"],
@@ -135,6 +143,10 @@ def save_recommendation_to_database(stock):
         stock["final_money"],
         position["quantity"],
         position["investment_amount"],
+        stock["sector_name"],
+        stock["sector_bonus"],
+        market_result["market_name"],
+        1 if market_result["is_market_bull"] else 0,
     ))
 
     connection.commit()
