@@ -18,6 +18,7 @@ from risk import calculate_position
 from market import analyze_market
 from database import initialize_database
 from database import save_recommendation_to_database
+from sector import print_sector_performance
 
 
 initialize_database()
@@ -212,4 +213,5 @@ else:
 save_report(results)
 analyze_history()
 analyze_recommendation_performance()
+print_sector_performance(results)
 analyze_strategy_performance()
