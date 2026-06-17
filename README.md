@@ -68,6 +68,10 @@ Technical Indicators
 * MACD
 * MACD Signal
 * MACD Histogram
+* Bollinger Bands
+  * Upper Band
+  * Middle Band
+  * Lower Band
 
 Strategy
 
@@ -83,7 +87,18 @@ MACD bonus:
 
 * +5 score when MACD > MACD Signal
 
+Bollinger bonus:
+
+* +3 score when price is near lower band
+* -3 score when price is near upper band
+
 Backtesting
+
+Entry rules:
+
+* Current Price > MA5
+* MA5 > MA20
+* MACD > MACD Signal
 
 Exit rules:
 
@@ -138,6 +153,10 @@ stock_report.csv includes:
 * MACD
 * MACD Signal
 * MACD Histogram
+* Bollinger Upper Band
+* Bollinger Middle Band
+* Bollinger Lower Band
+* Bollinger Score
 * Final Score
 * Win Rate
 * Average Return
@@ -190,6 +209,10 @@ Sends a daily email report including:
 * MACD
 * MACD Signal
 * MACD Histogram
+* Bollinger Upper Band
+* Bollinger Middle Band
+* Bollinger Lower Band
+* Bollinger Score
 * Backtest win rate
 * Average return
 * Final simulated asset value
@@ -249,7 +272,8 @@ Example Output
 * Recommendation Performance Tracking
 * Strategy Performance Summary
 * Stock Performance Ranking
-* MACD Analysis
+* MACD Metrics
+* Bollinger Band Analysis
 * Risk Management Summary
 * Daily Email Report
 
@@ -269,7 +293,6 @@ Technologies
 
 Future Improvements
 
-* Bollinger Bands
 * Telegram Notifications
 * Portfolio Optimization
 * Machine Learning Models
