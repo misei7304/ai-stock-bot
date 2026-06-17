@@ -133,7 +133,7 @@ else:
     print(f"백테스트 최종자산: {best_stock['final_money']:,.0f}원")
 
     save_history(best_stock)
-    send_email(best_stock)
+    send_email(best_stock, buy_candidates)
 
 
 save_report(results)
