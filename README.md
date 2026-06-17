@@ -2,7 +2,7 @@ AI Stock Bot
 
 Overview
 
-AI Stock Bot is a Python-based stock analysis, backtesting, and recommendation system for the Korean stock market.
+AI Stock Bot is a Python-based stock analysis, backtesting, recommendation, and risk management system for the Korean stock market.
 
 The program:
 
@@ -15,6 +15,7 @@ The program:
 * Saves recommendation history
 * Tracks recommendation performance
 * Sends daily email reports
+* Calculates position sizing based on available capital
 * Runs automatically every day
 
 ⸻
@@ -34,6 +35,7 @@ ai-stock-bot/
 ├── performance.py
 ├── strategy_performance.py
 ├── email_sender.py
+├── risk.py
 │
 ├── run.sh
 ├── requirements.txt
@@ -89,6 +91,27 @@ Outputs:
 * Final Asset Value
 * Total Profit
 
+Risk Management
+
+Position sizing:
+
+* Capital: 1,000,000 KRW
+* Risk Allocation: 30%
+* Automatically calculates:
+    * Available investment amount
+    * Number of shares that can be purchased
+    * Actual investment amount
+    * Buy availability
+
+Recommendation Logic
+
+Selection process:
+
+1. Generate buy candidates
+2. Rank by final score
+3. Filter stocks that cannot be purchased with available capital
+4. Recommend the highest-ranked affordable stock
+
 Reporting
 
 Creates:
@@ -128,12 +151,15 @@ Sends a daily email report including:
 
 * Best recommended stock
 * Buy candidate ranking
+* Risk management summary
 * Current price
 * Final score
 * RSI
 * Backtest win rate
 * Average return
 * Final simulated asset value
+* Buy availability
+* Recommended position size
 
 Automatic Daily Execution
 
@@ -157,6 +183,7 @@ Example Output
 * Recommendation History Summary
 * Recommendation Performance Tracking
 * Strategy Performance Summary
+* Risk Management Summary
 * Daily Email Report
 
 ⸻
@@ -181,7 +208,9 @@ Future Improvements
 * Portfolio Optimization
 * Machine Learning Models
 * Real Trading Integration
-* Risk Management System
-* Position Sizing System
+* Advanced Risk Management
+* Dynamic Position Sizing
 * Multi-Stock Portfolio Backtesting
 * AI-Based Stock Selection
+* Portfolio Rebalancing
+* Market Regime Detection
