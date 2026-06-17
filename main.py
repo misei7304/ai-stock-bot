@@ -25,6 +25,7 @@ from sector import calculate_sector_bonus
 from database_analyzer import analyze_database_recommendations
 from performance_db import update_recommendation_performance
 from real_performance import analyze_real_performance
+from market_performance import analyze_market_performance
 
 
 initialize_database()
@@ -238,3 +239,4 @@ analyze_strategy_performance()
 analyze_database_recommendations()
 update_recommendation_performance()
 analyze_real_performance()
+analyze_market_performance()
