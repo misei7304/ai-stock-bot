@@ -8,6 +8,11 @@ load_dotenv()
 BUY_FEE_RATE = float(os.getenv("BUY_FEE_RATE", 0.00015))
 SELL_FEE_RATE = float(os.getenv("SELL_FEE_RATE", 0.00195))
 
+ATR_STOP_MULTIPLIER = float(os.getenv("ATR_STOP_MULTIPLIER", 1.5))
+ATR_TAKE_PROFIT_MULTIPLIER = float(
+    os.getenv("ATR_TAKE_PROFIT_MULTIPLIER", 3.0)
+)
+
 
 def calculate_net_profit(buy_price, sell_price):
 
@@ -40,6 +45,8 @@ def backtest(data):
         macd = data["MACD"].iloc[i]
         macd_signal = data["MACD_SIGNAL"].iloc[i]
 
+        atr = data["ATR"].iloc[i]
+
         if (
             current_price > ma5
             and ma5 > ma20
@@ -49,22 +56,22 @@ def backtest(data):
 
             buy_price = current_price
 
+            stop_loss_price = buy_price - (atr * ATR_STOP_MULTIPLIER)
+            take_profit_price = buy_price + (
+                atr * ATR_TAKE_PROFIT_MULTIPLIER
+            )
+
             sell_price = None
 
             for j in range(1, 6):
 
                 future_price = data["Close"].iloc[i + j]
 
-                profit = calculate_net_profit(
-                    buy_price,
-                    future_price
-                )
-
-                if profit >= 10:
+                if future_price >= take_profit_price:
                     sell_price = future_price
                     break
 
-                if profit <= -5:
+                if future_price <= stop_loss_price:
                     sell_price = future_price
                     break
 
