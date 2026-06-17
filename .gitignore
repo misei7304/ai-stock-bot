@@ -1,0 +1,8 @@
+venv/
+__pycache__/
+*.pyc
+
+stock_report.csv
+history.csv
+
+.DS_Store
