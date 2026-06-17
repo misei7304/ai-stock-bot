@@ -22,6 +22,8 @@ from sector import print_sector_performance
 from sector import analyze_sector_performance
 from sector import get_sector_name
 from sector import calculate_sector_bonus
+from database_analyzer import analyze_database_recommendations
+from performance_db import update_recommendation_performance
 
 
 initialize_database()
@@ -232,3 +234,5 @@ analyze_history()
 analyze_recommendation_performance()
 print_sector_performance(results)
 analyze_strategy_performance()
+analyze_database_recommendations()
+update_recommendation_performance()
