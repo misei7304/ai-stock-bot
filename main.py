@@ -14,6 +14,7 @@ from history_analyzer import analyze_history
 from performance import analyze_recommendation_performance
 from email_sender import send_email
 from strategy_performance import analyze_strategy_performance
+from risk import calculate_position
 
 
 results = []
@@ -118,10 +119,22 @@ print("\n" + "#" * 80)
 print("최종 추천 1개")
 print("#" * 80)
 
-if len(buy_candidates) == 0:
-    print("현재 최종 추천 종목이 없습니다.")
+affordable_candidates = []
+
+for stock in buy_candidates:
+    position = calculate_position(stock)
+
+    if position["can_buy"]:
+        stock["position"] = position
+        affordable_candidates.append(stock)
+
+if len(affordable_candidates) == 0:
+    print("현재 최종 추천 가능한 종목이 없습니다.")
+    print("이유: 매수 후보는 있지만 현재 자본 기준으로 살 수 있는 종목이 없습니다.")
+
 else:
-    best_stock = buy_candidates[0]
+    best_stock = affordable_candidates[0]
+    position = best_stock["position"]
 
     print(f"최종 추천 종목: {best_stock['company_name']}")
     print(f"종목코드: {best_stock['ticker']}")
@@ -132,6 +145,18 @@ else:
     print(f"백테스트 승률: {best_stock['win_rate']:.2f}%")
     print(f"백테스트 평균수익: {best_stock['average_return']:.2f}%")
     print(f"백테스트 최종자산: {best_stock['final_money']:,.0f}원")
+
+    print("\n리스크 관리")
+    print(f"총 자본: {position['capital']:,.0f}원")
+    print(f"투자 비중: {position['risk_ratio'] * 100:.0f}%")
+    print(f"사용 가능 금액: {position['available_money']:,.0f}원")
+    print(f"매수 가능 수량: {position['quantity']}주")
+    print(f"투자 금액: {position['investment_amount']:,.0f}원")
+
+    if position["can_buy"]:
+        print("매수 가능")
+    else:
+        print("매수 불가능")
 
     save_history(best_stock)
     send_email(best_stock, buy_candidates)

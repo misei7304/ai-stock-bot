@@ -4,6 +4,8 @@ from email.mime.text import MIMEText
 
 from dotenv import load_dotenv
 
+from risk import calculate_position
+
 
 load_dotenv()
 
@@ -21,6 +23,17 @@ def send_email(best_stock, buy_candidates):
     rank = 1
 
     for stock in buy_candidates:
+        position = calculate_position(stock)
+
+        if position["can_buy"]:
+            buy_status = (
+                f"매수 가능 | "
+                f"{position['quantity']}주 | "
+                f"투자금액 {position['investment_amount']:,.0f}원"
+            )
+        else:
+            buy_status = "매수 불가능"
+
         candidate_text += (
             f"{rank}위 | "
             f"{stock['company_name']} | "
@@ -29,10 +42,13 @@ def send_email(best_stock, buy_candidates):
             f"최종점수 {stock['final_score']:.2f} | "
             f"RSI {stock['rsi']:.2f} | "
             f"승률 {stock['win_rate']:.2f}% | "
-            f"평균수익 {stock['average_return']:.2f}%\n"
+            f"평균수익 {stock['average_return']:.2f}% | "
+            f"{buy_status}\n"
         )
 
         rank += 1
+
+    best_position = calculate_position(best_stock)
 
     body = f"""
 AI Stock Bot Daily Report
@@ -48,6 +64,14 @@ RSI: {best_stock['rsi']:.2f}
 백테스트 승률: {best_stock['win_rate']:.2f}%
 백테스트 평균수익: {best_stock['average_return']:.2f}%
 백테스트 최종자산: {best_stock['final_money']:,.0f}원
+
+[리스크 관리]
+
+총 자본: {best_position['capital']:,.0f}원
+투자 비중: {best_position['risk_ratio'] * 100:.0f}%
+사용 가능 금액: {best_position['available_money']:,.0f}원
+매수 가능 수량: {best_position['quantity']}주
+투자 금액: {best_position['investment_amount']:,.0f}원
 
 
 [현재 매수 후보 순위]
