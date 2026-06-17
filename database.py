@@ -41,6 +41,23 @@ def initialize_database():
         )
     """)
 
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS recommendation_performance (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            recommendation_id INTEGER,
+            ticker TEXT,
+            company_name TEXT,
+            recommendation_date TEXT,
+            recommended_price REAL,
+            current_price REAL,
+            current_return REAL,
+            return_1d REAL,
+            return_5d REAL,
+            return_20d REAL,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
     connection.commit()
     connection.close()
 
