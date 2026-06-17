@@ -34,6 +34,21 @@ def calculate_macd(data):
     return data
 
 
+def calculate_bollinger_bands(data, period=20):
+    data["BOLLINGER_MIDDLE"] = data["Close"].rolling(period).mean()
+    data["BOLLINGER_STD"] = data["Close"].rolling(period).std()
+
+    data["BOLLINGER_UPPER"] = (
+        data["BOLLINGER_MIDDLE"] + data["BOLLINGER_STD"] * 2
+    )
+
+    data["BOLLINGER_LOWER"] = (
+        data["BOLLINGER_MIDDLE"] - data["BOLLINGER_STD"] * 2
+    )
+
+    return data
+
+
 def calculate_indicators(data):
     data["MA5"] = data["Close"].rolling(5).mean()
     data["MA20"] = data["Close"].rolling(20).mean()
@@ -43,5 +58,6 @@ def calculate_indicators(data):
 
     data = calculate_rsi(data)
     data = calculate_macd(data)
+    data = calculate_bollinger_bands(data)
 
     return data
