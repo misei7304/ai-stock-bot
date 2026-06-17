@@ -41,6 +41,8 @@ def send_email(best_stock, buy_candidates):
             f"현재가 {stock['current_price']:,.0f}원 | "
             f"최종점수 {stock['final_score']:.2f} | "
             f"RSI {stock['rsi']:.2f} | "
+            f"MACD {stock['macd']:.2f} | "
+            f"Signal {stock['macd_signal']:.2f} | "
             f"승률 {stock['win_rate']:.2f}% | "
             f"평균수익 {stock['average_return']:.2f}% | "
             f"{buy_status}\n"
@@ -61,6 +63,9 @@ AI Stock Bot Daily Report
 최종점수: {best_stock['final_score']:.2f}
 현재점수: {best_stock['total_score']:.2f}
 RSI: {best_stock['rsi']:.2f}
+MACD: {best_stock['macd']:.2f}
+MACD Signal: {best_stock['macd_signal']:.2f}
+MACD Histogram: {best_stock['macd_histogram']:.2f}
 백테스트 승률: {best_stock['win_rate']:.2f}%
 백테스트 평균수익: {best_stock['average_return']:.2f}%
 백테스트 최종자산: {best_stock['final_money']:,.0f}원
