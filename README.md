@@ -8,6 +8,7 @@ The program:
 
 * Downloads stock data from Yahoo Finance
 * Calculates technical indicators
+* Measures stock volatility using ATR
 * Identifies buy candidates
 * Performs historical backtesting
 * Simulates account growth
@@ -72,6 +73,8 @@ Technical Indicators
   * Upper Band
   * Middle Band
   * Lower Band
+* ATR (14)
+* ATR Percent
 
 Strategy
 
@@ -91,6 +94,19 @@ Bollinger bonus:
 
 * +3 score when price is near lower band
 * -3 score when price is near upper band
+
+ATR bonus:
+
+* +2 score when ATR Percent is 2% or lower
+* -3 score when ATR Percent is 6% or higher
+
+Total score calculation:
+
+* Price Score
+* Volume Score
+* MACD Score
+* Bollinger Score
+* ATR Score
 
 Backtesting
 
@@ -164,6 +180,10 @@ stock_report.csv includes:
 * Bollinger Middle Band
 * Bollinger Lower Band
 * Bollinger Score
+* ATR
+* ATR Percent
+* ATR Score
+* Current Score
 * Final Score
 * Win Rate
 * Average Return
@@ -211,6 +231,7 @@ Sends a daily email report including:
 * Buy candidate ranking
 * Risk management summary
 * Current price
+* Current score
 * Final score
 * RSI
 * MACD
@@ -220,6 +241,9 @@ Sends a daily email report including:
 * Bollinger Middle Band
 * Bollinger Lower Band
 * Bollinger Score
+* ATR
+* ATR Percent
+* ATR Score
 * Backtest win rate
 * Average return
 * Final simulated asset value
@@ -293,6 +317,7 @@ Example Output
 * Stock Performance Ranking
 * MACD Metrics
 * Bollinger Band Analysis
+* ATR Volatility Analysis
 * Risk Management Summary
 * Daily Email Report
 
