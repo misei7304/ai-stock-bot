@@ -1,3 +1,29 @@
+import os
+
+from dotenv import load_dotenv
+
+
+load_dotenv()
+
+BUY_FEE_RATE = float(os.getenv("BUY_FEE_RATE", 0.00015))
+SELL_FEE_RATE = float(os.getenv("SELL_FEE_RATE", 0.00195))
+
+
+def calculate_net_profit(buy_price, sell_price):
+
+    gross_profit = (
+        (sell_price - buy_price)
+        / buy_price
+    ) * 100
+
+    total_fee_rate = BUY_FEE_RATE + SELL_FEE_RATE
+    total_fee_percent = total_fee_rate * 100
+
+    net_profit = gross_profit - total_fee_percent
+
+    return net_profit
+
+
 def backtest(data):
 
     trades = []
@@ -29,10 +55,10 @@ def backtest(data):
 
                 future_price = data["Close"].iloc[i + j]
 
-                profit = (
-                    (future_price - buy_price)
-                    / buy_price
-                ) * 100
+                profit = calculate_net_profit(
+                    buy_price,
+                    future_price
+                )
 
                 if profit >= 10:
                     sell_price = future_price
@@ -45,10 +71,10 @@ def backtest(data):
             if sell_price is None:
                 sell_price = data["Close"].iloc[i + 5]
 
-            final_profit = (
-                (sell_price - buy_price)
-                / buy_price
-            ) * 100
+            final_profit = calculate_net_profit(
+                buy_price,
+                sell_price
+            )
 
             trades.append(final_profit)
 
