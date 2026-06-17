@@ -65,6 +65,9 @@ Technical Indicators
 * 5-day Volume Average
 * 20-day Volume Average
 * RSI (14)
+* MACD
+* MACD Signal
+* MACD Histogram
 
 Strategy
 
@@ -74,6 +77,11 @@ Buy candidate conditions:
 * MA5 > MA20
 * Total Score > 0
 * RSI < 70
+* MACD > MACD Signal
+
+MACD bonus:
+
+* +5 score when MACD > MACD Signal
 
 Backtesting
 
@@ -124,6 +132,17 @@ Creates:
 * stock_report.csv
 * history.csv
 
+stock_report.csv includes:
+
+* RSI
+* MACD
+* MACD Signal
+* MACD Histogram
+* Final Score
+* Win Rate
+* Average Return
+* Final Asset Value
+
 History Analysis
 
 Tracks:
@@ -168,6 +187,9 @@ Sends a daily email report including:
 * Current price
 * Final score
 * RSI
+* MACD
+* MACD Signal
+* MACD Histogram
 * Backtest win rate
 * Average return
 * Final simulated asset value
@@ -227,6 +249,7 @@ Example Output
 * Recommendation Performance Tracking
 * Strategy Performance Summary
 * Stock Performance Ranking
+* MACD Analysis
 * Risk Management Summary
 * Daily Email Report
 
@@ -246,7 +269,6 @@ Technologies
 
 Future Improvements
 
-* MACD Indicator
 * Bollinger Bands
 * Telegram Notifications
 * Portfolio Optimization
