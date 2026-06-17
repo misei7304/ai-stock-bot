@@ -2,7 +2,7 @@ AI Stock Bot
 
 Overview
 
-AI Stock Bot is a Python-based stock analysis and backtesting project.
+AI Stock Bot is a Python-based stock analysis, backtesting, and recommendation system for the Korean stock market.
 
 The program:
 
@@ -14,6 +14,8 @@ The program:
 * Generates CSV reports
 * Saves recommendation history
 * Tracks recommendation performance
+* Sends daily email reports
+* Runs automatically every day
 
 ⸻
 
@@ -30,10 +32,15 @@ ai-stock-bot/
 ├── history.py
 ├── history_analyzer.py
 ├── performance.py
+├── strategy_performance.py
+├── email_sender.py
+│
+├── run.sh
+├── requirements.txt
+├── .env
 │
 ├── stock_report.csv
 ├── history.csv
-├── requirements.txt
 │
 └── README.md
 
@@ -97,13 +104,48 @@ Tracks:
 * Recommendation count
 * Recommendation dates
 
-Performance Tracking
+Recommendation Performance Tracking
 
 Tracks:
 
 * Recommendation price
 * Current price
-* Recommendation return (%)
+* Current return
+* 1-day return
+* 5-day return
+* 20-day return
+
+Strategy Performance Summary
+
+Tracks:
+
+* Total recommendation count
+* Recommendation count by stock
+
+Email Notification
+
+Sends a daily email report including:
+
+* Best recommended stock
+* Buy candidate ranking
+* Current price
+* Final score
+* RSI
+* Backtest win rate
+* Average return
+* Final simulated asset value
+
+Automatic Daily Execution
+
+Runs automatically using macOS launchd.
+
+Current schedule:
+
+* Every day at 09:00
+
+Execution script:
+
+./run.sh
 
 ⸻
 
@@ -114,6 +156,8 @@ Example Output
 * Best Stock Recommendation
 * Recommendation History Summary
 * Recommendation Performance Tracking
+* Strategy Performance Summary
+* Daily Email Report
 
 ⸻
 
@@ -121,8 +165,11 @@ Technologies
 
 * Python
 * yfinance
-* Pandas
+* pandas
+* python-dotenv
+* smtplib
 * CSV
+* launchd
 
 ⸻
 
@@ -130,10 +177,11 @@ Future Improvements
 
 * MACD Indicator
 * Bollinger Bands
-* Automatic Daily Execution
-* Email Notifications
 * Telegram Notifications
 * Portfolio Optimization
 * Machine Learning Models
 * Real Trading Integration
 * Risk Management System
+* Position Sizing System
+* Multi-Stock Portfolio Backtesting
+* AI-Based Stock Selection
