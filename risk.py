@@ -1,4 +1,15 @@
-def calculate_position(stock, capital=1000000, risk_ratio=0.3):
+import os
+
+from dotenv import load_dotenv
+
+
+load_dotenv()
+
+
+def calculate_position(stock):
+
+    capital = float(os.getenv("CAPITAL", 1000000))
+    risk_ratio = float(os.getenv("RISK_RATIO", 0.3))
 
     available_money = capital * risk_ratio
     current_price = stock["current_price"]
