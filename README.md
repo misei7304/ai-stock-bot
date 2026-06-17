@@ -65,10 +65,10 @@ Technical Indicators
 * 5-day Volume Average
 * 20-day Volume Average
 * RSI (14)
-* MACD
-* MACD Signal
+* MACD (12,26)
+* MACD Signal (9)
 * MACD Histogram
-* Bollinger Bands
+* Bollinger Bands (20,2)
   * Upper Band
   * Middle Band
   * Lower Band
@@ -98,6 +98,7 @@ Entry rules:
 
 * Current Price > MA5
 * MA5 > MA20
+* RSI < 70
 * MACD > MACD Signal
 
 Exit rules:
