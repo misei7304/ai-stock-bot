@@ -12,6 +12,7 @@ from report import save_report
 from history import save_history
 from history_analyzer import analyze_history
 from performance import analyze_recommendation_performance
+from email_sender import send_email
 
 
 results = []
@@ -132,6 +133,7 @@ else:
     print(f"백테스트 최종자산: {best_stock['final_money']:,.0f}원")
 
     save_history(best_stock)
+    send_email(best_stock)
 
 
 save_report(results)

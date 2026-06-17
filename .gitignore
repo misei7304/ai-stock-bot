@@ -8,4 +8,6 @@ history.csv
 log.txt
 error.log
 
+.env
+
 .DS_Store
