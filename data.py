@@ -23,6 +23,17 @@ def calculate_rsi(data, period=14):
     return data
 
 
+def calculate_macd(data):
+    data["EMA12"] = data["Close"].ewm(span=12, adjust=False).mean()
+    data["EMA26"] = data["Close"].ewm(span=26, adjust=False).mean()
+
+    data["MACD"] = data["EMA12"] - data["EMA26"]
+    data["MACD_SIGNAL"] = data["MACD"].ewm(span=9, adjust=False).mean()
+    data["MACD_HISTOGRAM"] = data["MACD"] - data["MACD_SIGNAL"]
+
+    return data
+
+
 def calculate_indicators(data):
     data["MA5"] = data["Close"].rolling(5).mean()
     data["MA20"] = data["Close"].rolling(20).mean()
@@ -31,5 +42,6 @@ def calculate_indicators(data):
     data["Volume_MA20"] = data["Volume"].rolling(20).mean()
 
     data = calculate_rsi(data)
+    data = calculate_macd(data)
 
     return data

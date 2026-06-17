@@ -10,16 +10,30 @@ def analyze_stock(data, company_name):
 
     rsi = data["RSI"].iloc[-1]
 
+    macd = data["MACD"].iloc[-1]
+    macd_signal = data["MACD_SIGNAL"].iloc[-1]
+    macd_histogram = data["MACD_HISTOGRAM"].iloc[-1]
+
     price_score = ((ma5 - ma20) / ma20) * 100
     volume_score = ((volume_ma5 - volume_ma20) / volume_ma20) * 100
 
-    total_score = price_score + (volume_score * 0.3)
+    macd_score = 0
+
+    if macd > macd_signal:
+        macd_score = 5
+
+    total_score = (
+        price_score
+        + (volume_score * 0.3)
+        + macd_score
+    )
 
     is_buy_candidate = (
         current_price > ma5
         and ma5 > ma20
         and total_score > 0
         and rsi < 70
+        and macd > macd_signal
     )
 
     return {
@@ -27,6 +41,10 @@ def analyze_stock(data, company_name):
         "current_price": current_price,
         "price_score": price_score,
         "volume_score": volume_score,
+        "macd": macd,
+        "macd_signal": macd_signal,
+        "macd_histogram": macd_histogram,
+        "macd_score": macd_score,
         "total_score": total_score,
         "rsi": rsi,
         "is_buy_candidate": is_buy_candidate,
