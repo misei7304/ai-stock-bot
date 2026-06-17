@@ -49,6 +49,22 @@ def save_recommendation_to_database(stock):
     connection = get_connection()
     cursor = connection.cursor()
 
+    cursor.execute("""
+        SELECT COUNT(*)
+        FROM recommendations
+        WHERE recommendation_date = DATE('now', 'localtime')
+        AND ticker = ?
+    """, (
+        stock["ticker"],
+    ))
+
+    existing_count = cursor.fetchone()[0]
+
+    if existing_count > 0:
+        connection.close()
+        print("이미 오늘 DB 추천 기록이 있습니다. DB 저장 생략")
+        return
+
     position = stock["position"]
 
     cursor.execute("""
