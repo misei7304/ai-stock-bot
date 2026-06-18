@@ -32,6 +32,7 @@ from sector_real_performance import analyze_sector_real_performance
 from factor_performance import analyze_rsi_performance
 from factor_performance import analyze_macd_performance
 from factor_performance import analyze_atr_performance
+from factor_performance import analyze_bollinger_performance
 
 
 initialize_database()
@@ -253,3 +254,4 @@ analyze_sector_real_performance()
 analyze_rsi_performance()
 analyze_macd_performance()
 analyze_atr_performance()
+analyze_bollinger_performance()

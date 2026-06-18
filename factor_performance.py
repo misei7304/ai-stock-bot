@@ -317,3 +317,84 @@ def analyze_atr_performance():
         )
 
     connection.close()
+
+def analyze_bollinger_performance():
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        SELECT
+            r.bollinger_score,
+            p.current_return
+        FROM recommendation_performance p
+        JOIN recommendations r
+        ON p.recommendation_id = r.id
+        WHERE p.current_return IS NOT NULL
+        AND r.bollinger_score IS NOT NULL
+    """)
+
+    rows = cursor.fetchall()
+
+    print("\n" + "#" * 80)
+    print("볼린저 점수별 실전 성과 분석")
+    print("#" * 80)
+
+    if len(rows) == 0:
+        print("분석 가능한 볼린저 실전 성과 데이터가 없습니다.")
+        connection.close()
+        return
+
+    score_stats = {}
+
+    for bollinger_score, current_return in rows:
+        if bollinger_score not in score_stats:
+            score_stats[bollinger_score] = []
+
+        score_stats[bollinger_score].append(current_return)
+
+    score_results = []
+
+    for bollinger_score, returns in score_stats.items():
+        total_count = len(returns)
+        win_count = 0
+
+        for current_return in returns:
+            if current_return > 0:
+                win_count += 1
+
+        loss_count = total_count - win_count
+        success_rate = (win_count / total_count) * 100
+        average_return = sum(returns) / total_count
+        best_return = max(returns)
+        worst_return = min(returns)
+
+        score_results.append({
+            "bollinger_score": bollinger_score,
+            "total_count": total_count,
+            "win_count": win_count,
+            "loss_count": loss_count,
+            "success_rate": success_rate,
+            "average_return": average_return,
+            "best_return": best_return,
+            "worst_return": worst_return,
+        })
+
+    score_results = sorted(
+        score_results,
+        key=lambda x: x["bollinger_score"],
+        reverse=True
+    )
+
+    for result in score_results:
+        print(
+            f"볼린저점수 {result['bollinger_score']} | "
+            f"추천수 {result['total_count']}회 | "
+            f"수익중 {result['win_count']}회 | "
+            f"손실/보합 {result['loss_count']}회 | "
+            f"성공률 {result['success_rate']:.2f}% | "
+            f"평균수익률 {result['average_return']:.2f}% | "
+            f"최고수익률 {result['best_return']:.2f}% | "
+            f"최저수익률 {result['worst_return']:.2f}%"
+        )
+
+    connection.close()
