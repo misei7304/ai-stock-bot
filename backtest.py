@@ -1,6 +1,7 @@
 import os
 
 from dotenv import load_dotenv
+from strategy_config import get_strategy_config
 
 
 load_dotenv()
@@ -32,6 +33,7 @@ def calculate_net_profit(buy_price, sell_price):
 def backtest(data):
 
     trades = []
+    config = get_strategy_config()
 
     for i in range(20, len(data) - 5):
 
@@ -50,7 +52,7 @@ def backtest(data):
         if (
             current_price > ma5
             and ma5 > ma20
-            and rsi < 70
+            and rsi < config["rsi_limit"]
             and macd > macd_signal
         ):
 

@@ -1,3 +1,6 @@
+from strategy_config import get_strategy_config
+
+
 def analyze_stock(data, company_name):
 
     current_price = data["Close"].iloc[-1]
@@ -9,6 +12,8 @@ def analyze_stock(data, company_name):
     volume_ma20 = data["Volume_MA20"].iloc[-1]
 
     rsi = data["RSI"].iloc[-1]
+
+    config = get_strategy_config()
 
     macd = data["MACD"].iloc[-1]
     macd_signal = data["MACD_SIGNAL"].iloc[-1]
@@ -55,7 +60,7 @@ def analyze_stock(data, company_name):
         current_price > ma5
         and ma5 > ma20
         and total_score > 0
-        and rsi < 70
+        and rsi < config["rsi_limit"]
         and macd > macd_signal
     )
 

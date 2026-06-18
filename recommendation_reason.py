@@ -1,4 +1,9 @@
 def generate_recommendation_reason(stock, market_result):
+    from strategy_config import get_strategy_config
+
+    config = get_strategy_config()
+    rsi_limit = config["rsi_limit"]
+
     reasons = []
 
     if market_result["is_market_bull"]:
@@ -6,10 +11,10 @@ def generate_recommendation_reason(stock, market_result):
     else:
         reasons.append("시장 상태가 약세장입니다.")
 
-    if stock["rsi"] >= 50 and stock["rsi"] < 70:
+    if stock["rsi"] >= 50 and stock["rsi"] < rsi_limit:
         reasons.append("RSI가 과열 구간은 아니면서 상승 흐름을 보입니다.")
-    elif stock["rsi"] >= 70:
-        reasons.append("RSI가 과열 구간에 있습니다.")
+    elif stock["rsi"] >= rsi_limit:
+        reasons.append("RSI가 전략 기준상 과열 구간에 있습니다.")
     else:
         reasons.append("RSI 상승 강도가 약합니다.")
 

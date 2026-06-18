@@ -8,6 +8,10 @@ def save_strategy_upgrade_candidate():
     suggestions = get_strategy_optimization_suggestions()
     suggestion_text = "\n".join(suggestions)
 
+    if "손실 데이터가 아직 부족합니다." in suggestion_text:
+        print("전략 업그레이드 후보 저장 생략: 손실 데이터가 아직 부족합니다.")
+        return False
+
     connection = get_connection()
     cursor = connection.cursor()
 
