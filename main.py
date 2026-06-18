@@ -46,6 +46,7 @@ from recommendation_reason import generate_recommendation_reason
 from adaptive_score import apply_adaptive_score
 from loss_analyzer import analyze_losing_patterns
 from sector_penalty import apply_sector_penalty
+from factor_penalty import apply_factor_penalty
 
 
 initialize_database()
@@ -119,6 +120,9 @@ for stock in results:
 for stock in results:
     stock = apply_sector_penalty(stock)
 
+for stock in results:
+    stock = apply_factor_penalty(stock)
+
 
 print("\n" + "#" * 80)
 print("현재 매수 후보 순위")
@@ -155,6 +159,7 @@ else:
             f"섹터보너스 {stock['sector_bonus']} | "
             f"적응보너스 {stock['adaptive_bonus']} | "
             f"섹터패널티 {stock['sector_penalty']} | "
+            f"팩터패널티 {stock['factor_penalty']} | "
             f"현재점수 {stock['total_score']:.2f} | "
             f"RSI {stock['rsi']:.2f} | "
             f"MACD {stock['macd']:.2f} | "
@@ -233,6 +238,7 @@ else:
     print(f"섹터 보너스: {best_stock['sector_bonus']}")
     print(f"적응 보너스: {best_stock['adaptive_bonus']}")
     print(f"섹터 패널티: {best_stock['sector_penalty']}")
+    print(f"팩터 패널티: {best_stock['factor_penalty']}")
     print(f"현재점수: {best_stock['total_score']:.2f}")
     print(f"RSI: {best_stock['rsi']:.2f}")
     print(f"MACD: {best_stock['macd']:.2f}")
