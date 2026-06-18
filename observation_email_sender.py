@@ -8,6 +8,7 @@ from strategy_optimizer import get_strategy_optimization_suggestions
 from strategy_version import get_current_strategy_version
 from strategy_version_performance import get_strategy_version_performance_summary
 from recommendation_type_performance import get_recommendation_type_performance_summary
+from strategy_upgrade_candidate_analyzer import get_strategy_upgrade_candidate_summary
 
 
 load_dotenv()
@@ -70,8 +71,18 @@ def send_observation_email(best_stock, buy_candidates, market_result):
     strategy_suggestions = "\n".join(get_strategy_optimization_suggestions())
 
     current_strategy_version = get_current_strategy_version()
-    strategy_version_performance = "\n".join(get_strategy_version_performance_summary())
-    recommendation_type_performance = "\n".join(get_recommendation_type_performance_summary())
+
+    strategy_version_performance = "\n".join(
+        get_strategy_version_performance_summary()
+    )
+
+    recommendation_type_performance = "\n".join(
+        get_recommendation_type_performance_summary()
+    )
+
+    strategy_upgrade_candidates = "\n".join(
+        get_strategy_upgrade_candidate_summary()
+    )
 
     body = f"""
 AI Stock Bot Observation Report
@@ -100,6 +111,10 @@ MA20: {market_result['ma20']:,.2f}
 [추천 유형별 성과]
 
 {recommendation_type_performance}
+
+[전략 업그레이드 후보]
+
+{strategy_upgrade_candidates}
 
 [자동 전략 개선 제안]
 
