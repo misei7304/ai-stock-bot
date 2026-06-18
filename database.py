@@ -39,11 +39,27 @@ def initialize_database():
             investment_amount REAL,
             sector_name TEXT,
             sector_bonus REAL,
+            adaptive_bonus REAL,
+            sector_penalty REAL,
+            factor_penalty REAL,
             market_name TEXT,
             market_bull INTEGER,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
+
+    for column_name in [
+        "adaptive_bonus",
+        "sector_penalty",
+        "factor_penalty",
+    ]:
+        try:
+            cursor.execute(f"""
+                ALTER TABLE recommendations
+                ADD COLUMN {column_name} REAL
+            """)
+        except sqlite3.OperationalError:
+            pass
 
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS recommendation_performance (
@@ -114,12 +130,15 @@ def save_recommendation_to_database(stock, market_result):
             investment_amount,
             sector_name,
             sector_bonus,
+            adaptive_bonus,
+            sector_penalty,
+            factor_penalty,
             market_name,
             market_bull
         )
         VALUES (
             DATE('now', 'localtime'),
-            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
         )
     """, (
         stock["company_name"],
@@ -145,6 +164,9 @@ def save_recommendation_to_database(stock, market_result):
         position["investment_amount"],
         stock["sector_name"],
         stock["sector_bonus"],
+        stock["adaptive_bonus"],
+        stock["sector_penalty"],
+        stock["factor_penalty"],
         market_result["market_name"],
         1 if market_result["is_market_bull"] else 0,
     ))

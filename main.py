@@ -47,6 +47,7 @@ from adaptive_score import apply_adaptive_score
 from loss_analyzer import analyze_losing_patterns
 from sector_penalty import apply_sector_penalty
 from factor_penalty import apply_factor_penalty
+from score_adjustment_analyzer import analyze_score_adjustments
 
 
 initialize_database()
@@ -328,6 +329,7 @@ analyze_holding_period_performance()
 analyze_strategy_score()
 analyze_stock_real_performance()
 analyze_losing_patterns()
+analyze_score_adjustments()
 
 print("\n" + "#" * 80)
 print("최종 실전 매수 판단")
