@@ -300,24 +300,26 @@ if len(affordable_candidates) == 0:
     can_real_trade = check_real_risk_guard()
 
     if len(buy_candidates) > 0:
-        observation_stock = buy_candidates[0]
+        observation_candidates = buy_candidates[:3]
+        email_observation_stock = observation_candidates[0]
 
-        position = calculate_position(observation_stock)
-        observation_stock["position"] = position
+        for observation_stock in observation_candidates:
+            position = calculate_position(observation_stock)
+            observation_stock["position"] = position
 
-        save_observation_candidate(
-            observation_stock,
-            market_result
-        )
+            save_observation_candidate(
+                observation_stock,
+                market_result
+            )
 
         if was_email_sent_today():
             print("오늘 이미 이메일을 발송했습니다. 이메일 발송 생략")
         else:
             if can_send_trade_email(can_real_trade):
-                send_email(observation_stock, buy_candidates, market_result)
+                send_email(email_observation_stock, buy_candidates, market_result)
             else:
                 send_observation_email(
-                    observation_stock,
+                    email_observation_stock,
                     buy_candidates,
                     market_result
                 )
