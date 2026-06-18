@@ -588,15 +588,23 @@ pending → reviewed → approved → version_created
 
 Manual Commands:
 
+python list_strategy_versions.py
 python review_candidate.py 후보ID
 python approve_candidate.py 후보ID
 python create_strategy_version_from_candidate.py 후보ID 새버전
+python activate_strategy_version.py 버전
 
 Example:
 
+python list_strategy_versions.py
 python review_candidate.py 2
 python approve_candidate.py 2
 python create_strategy_version_from_candidate.py 2 v1.2.0
+python activate_strategy_version.py v1.2.0
+
+list_strategy_versions.py shows all strategy versions and identifies the currently active version.
+
+activate_strategy_version.py can only activate a strategy version that already exists in the strategy_versions table.
 
 A strategy version can only be created from a candidate with approved status.
 
