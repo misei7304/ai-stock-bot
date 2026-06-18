@@ -51,6 +51,7 @@ from score_adjustment_analyzer import analyze_score_adjustments
 from recommendation_reason_analyzer import analyze_recommendation_reason_performance
 from reason_score import apply_reason_score
 from observation_database import save_observation_candidate
+from strategy_optimizer import analyze_strategy_optimization_suggestions
 
 
 initialize_database()
@@ -349,6 +350,7 @@ analyze_stock_real_performance()
 analyze_losing_patterns()
 analyze_score_adjustments()
 analyze_recommendation_reason_performance()
+analyze_strategy_optimization_suggestions()
 
 print("\n" + "#" * 80)
 print("최종 실전 매수 판단")
