@@ -106,3 +106,111 @@ def analyze_rsi_performance():
         )
 
     connection.close()
+
+
+def get_macd_bucket(macd, macd_signal):
+    macd_gap = macd - macd_signal
+
+    if macd_gap <= 0:
+        return "MACD <= Signal"
+    elif macd_gap < 500:
+        return "0~500"
+    elif macd_gap < 1000:
+        return "500~1000"
+    elif macd_gap < 2000:
+        return "1000~2000"
+    else:
+        return "2000+"
+
+
+def analyze_macd_performance():
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        SELECT
+            r.macd,
+            r.macd_signal,
+            p.current_return
+        FROM recommendation_performance p
+        JOIN recommendations r
+        ON p.recommendation_id = r.id
+        WHERE p.current_return IS NOT NULL
+        AND r.macd IS NOT NULL
+        AND r.macd_signal IS NOT NULL
+    """)
+
+    rows = cursor.fetchall()
+
+    print("\n" + "#" * 80)
+    print("MACD 구간별 실전 성과 분석")
+    print("#" * 80)
+
+    if len(rows) == 0:
+        print("분석 가능한 MACD 실전 성과 데이터가 없습니다.")
+        connection.close()
+        return
+
+    bucket_stats = {}
+
+    for macd, macd_signal, current_return in rows:
+        bucket = get_macd_bucket(macd, macd_signal)
+
+        if bucket not in bucket_stats:
+            bucket_stats[bucket] = []
+
+        bucket_stats[bucket].append(current_return)
+
+    bucket_results = []
+
+    for bucket, returns in bucket_stats.items():
+        total_count = len(returns)
+        win_count = 0
+
+        for current_return in returns:
+            if current_return > 0:
+                win_count += 1
+
+        loss_count = total_count - win_count
+        success_rate = (win_count / total_count) * 100
+        average_return = sum(returns) / total_count
+        best_return = max(returns)
+        worst_return = min(returns)
+
+        bucket_results.append({
+            "bucket": bucket,
+            "total_count": total_count,
+            "win_count": win_count,
+            "loss_count": loss_count,
+            "success_rate": success_rate,
+            "average_return": average_return,
+            "best_return": best_return,
+            "worst_return": worst_return,
+        })
+
+    bucket_order = {
+        "MACD <= Signal": 1,
+        "0~500": 2,
+        "500~1000": 3,
+        "1000~2000": 4,
+        "2000+": 5,
+    }
+
+    bucket_results = sorted(
+        bucket_results,
+        key=lambda x: bucket_order[x["bucket"]]
+    )
+
+    for result in bucket_results:
+        print(
+            f"{result['bucket']} | "
+            f"추천수 {result['total_count']}회 | "
+            f"수익중 {result['win_count']}회 | "
+            f"손실/보합 {result['loss_count']}회 | "
+            f"성공률 {result['success_rate']:.2f}% | "
+            f"평균수익률 {result['average_return']:.2f}% | "
+            f"최고수익률 {result['best_return']:.2f}% | "
+            f"최저수익률 {result['worst_return']:.2f}%"
+        )
+
+    connection.close()
