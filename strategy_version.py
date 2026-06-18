@@ -66,7 +66,22 @@ def initialize_strategy_version():
 
         print(f"전략 버전 등록 완료: {CURRENT_STRATEGY_VERSION}")
     else:
-        print(f"전략 버전 이미 등록됨: {CURRENT_STRATEGY_VERSION}")
+        print(f"기본 전략 버전 이미 등록됨: {CURRENT_STRATEGY_VERSION}")
+
+    cursor.execute("""
+        SELECT version
+        FROM strategy_versions
+        WHERE is_active = 1
+        ORDER BY id DESC
+        LIMIT 1
+    """)
+
+    active_row = cursor.fetchone()
+
+    if active_row is None:
+        print(f"현재 활성 전략 버전: {CURRENT_STRATEGY_VERSION}")
+    else:
+        print(f"현재 활성 전략 버전: {active_row[0]}")
 
     connection.commit()
     connection.close()
