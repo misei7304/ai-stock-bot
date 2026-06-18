@@ -2,105 +2,79 @@ AI Stock Bot
 
 Overview
 
-AI Stock Bot is a Python-based stock analysis, backtesting, recommendation, and risk management system for the Korean stock market.
+AI Stock Bot is an AI-driven stock analysis, recommendation, observation, and strategy-learning system for the Korean stock market.
 
-The program:
+The system automatically:
 
 * Downloads stock data from Yahoo Finance
 * Calculates technical indicators
-* Measures stock volatility using ATR
-* Identifies buy candidates
+* Evaluates market conditions using KOSPI
+* Generates stock recommendations
 * Performs historical backtesting
-* Simulates account growth
-* Generates CSV reports
-* Saves recommendation history
-* Tracks recommendation performance
-* Updates current return automatically
-* Analyzes strategy performance
-* Ranks stock performance by average return
+* Simulates portfolio growth
+* Tracks real recommendation performance
+* Stores recommendation history in SQLite
 * Sends daily email reports
-* Calculates position sizing based on available capital
-* Runs automatically every day
+* Learns from losing recommendations
+* Generates strategy improvement suggestions
+* Blocks real trading until risk requirements are satisfied
+
+The goal is to build a self-improving stock recommendation engine before enabling real-money trading.
 
 ⸻
 
-Project Structure
-
-ai-stock-bot/
-│
-├── main.py
-├── data.py
-├── strategy.py
-├── backtest.py
-├── stocks.py
-├── report.py
-├── history.py
-├── history_analyzer.py
-├── performance.py
-├── strategy_performance.py
-├── email_sender.py
-├── risk.py
-│
-├── run.sh
-├── requirements.txt
-├── .env
-│
-├── stock_report.csv
-├── history.csv
-│
-└── README.md
-
-⸻
-
-Features
+Main Features
 
 Data Collection
 
-* Yahoo Finance API
-* Historical stock data
+* Yahoo Finance
+* Historical OHLCV data
+* Daily stock updates
+
+⸻
 
 Technical Indicators
 
-* 5-day Moving Average (MA5)
-* 20-day Moving Average (MA20)
-* 5-day Volume Average
-* 20-day Volume Average
+* MA5
+* MA20
+* Volume MA5
+* Volume MA20
 * RSI (14)
 * MACD (12,26)
 * MACD Signal (9)
 * MACD Histogram
 * Bollinger Bands (20,2)
-  * Upper Band
-  * Middle Band
-  * Lower Band
+    * Upper Band
+    * Middle Band
+    * Lower Band
 * ATR (14)
 * ATR Percent
+* ATR Score
 
-Strategy
+⸻
 
-Buy candidate conditions:
+Market Regime Analysis
 
-* Current Price > MA5
-* MA5 > MA20
-* Total Score > 0
-* RSI < 70
-* MACD > MACD Signal
+KOSPI is analyzed before generating recommendations.
 
-MACD bonus:
+Bull Market:
 
-* +5 score when MACD > MACD Signal
+KOSPI Current Price > KOSPI MA20
 
-Bollinger bonus:
+Bear Market:
 
-* +3 score when price is near lower band
-* -3 score when price is near upper band
+KOSPI Current Price < KOSPI MA20
 
-ATR bonus:
+Rules:
 
-* +2 score when ATR Percent is 2% or lower
-* -3 score when ATR Percent is 6% or higher
+* Bull market → recommendations allowed
+* Bear market → recommendations blocked
 
-Total score calculation:
+⸻
+
+Stock Scoring System
+
+Base Score Components:
 
 * Price Score
 * Volume Score
@@ -108,165 +82,343 @@ Total score calculation:
 * Bollinger Score
 * ATR Score
 
-Backtesting
+Additional Adjustments:
 
-Entry rules:
+* Sector Bonus
+* Adaptive Bonus
+* Sector Penalty
+* Factor Penalty
+* Recommendation Reason Score
+
+Final Score:
+
+Final Score determines ranking priority.
+
+⸻
+
+Buy Candidate Conditions
+
+A stock becomes a buy candidate when:
+
+* Current Price > MA5
+* MA5 > MA20
+* Total Score > 0
+* RSI < 70
+* MACD > MACD Signal
+* Market is Bullish
+
+⸻
+
+Recommendation Reason Engine
+
+The system automatically generates human-readable explanations.
+
+Example:
+
+* Market is bullish
+* RSI shows healthy momentum
+* MACD is above Signal
+* ATR volatility risk exists
+* Final score is strong
+
+These explanations are stored and later analyzed.
+
+⸻
+
+Backtesting Engine
+
+Entry Conditions:
 
 * Current Price > MA5
 * MA5 > MA20
 * RSI < 70
 * MACD > MACD Signal
 
-Exit rules:
+Exit Conditions:
 
-* Take Profit: +10%
-* Stop Loss: -5%
-* Maximum Holding Period: 5 Days
+* Take Profit = ATR × 3.0
+* Stop Loss = ATR × 1.5
+* Maximum Holding Period = 5 trading days
 
-Trading costs:
+Configurable through .env
 
-* Buy Fee: configurable through .env
-* Sell Fee: configurable through .env
-* Applied automatically during backtesting
+⸻
 
 Account Simulation
 
 Starting Capital:
 
-* 1,000,000 KRW
+1,000,000 KRW
 
 Outputs:
 
 * Final Asset Value
 * Total Profit
+* Simulated Growth
+
+⸻
 
 Risk Management
 
-Position sizing:
+Capital and risk allocation are configurable.
 
-* Capital: configurable through .env
-* Risk Allocation: configurable through .env
+Calculates:
 
-Automatically calculates:
+* Available Capital
+* Position Size
+* Share Quantity
+* Investment Amount
+* Buy Availability
 
-* Available investment amount
-* Number of shares that can be purchased
-* Actual investment amount
-* Buy availability
+⸻
 
-Recommendation Logic
+Real Trading Safety Guard
 
-Selection process:
+The system blocks real trading until sufficient evidence exists.
 
-1. Generate buy candidates
-2. Rank by final score
-3. Filter stocks that cannot be purchased with available capital
-4. Recommend the highest-ranked affordable stock
+Current Requirements:
 
-Reporting
+* Minimum 20 recommendations
+* Stable recommendation success rate
+* Positive strategy score
 
-Creates:
+If requirements are not met:
 
-* stock_report.csv
-* history.csv
+* Real trading disabled
+* Observation mode only
 
-stock_report.csv includes:
+⸻
 
-* RSI
-* MACD
-* MACD Signal
-* MACD Histogram
-* Bollinger Upper Band
-* Bollinger Middle Band
-* Bollinger Lower Band
-* Bollinger Score
-* ATR
-* ATR Percent
-* ATR Score
-* Current Score
-* Final Score
-* Win Rate
-* Average Return
-* Final Asset Value
+Observation Mode
 
-History Analysis
+When real trading is blocked:
 
-Tracks:
+* Top 3 candidates are selected
+* Observation database is updated
+* Observation email is sent
+* No actual trading recommendation is allowed
 
-* Recommended stocks
-* Recommendation count
-* Recommendation dates
+⸻
+
+Recommendation Database
+
+SQLite Database:
+
+stock_bot.db
+
+Stores:
+
+* Recommendations
+* Observation Candidates
+* Performance Tracking
+* Recommendation Reasons
+* Market Conditions
+
+⸻
 
 Recommendation Performance Tracking
 
 Tracks:
 
-* Recommendation price
-* Current price
-* Current return
-* 1-day return
-* 5-day return
-* 20-day return
-* Updates current return in history.csv
+* Recommendation Price
+* Current Price
+* Current Return
+* 1-Day Return
+* 5-Day Return
+* 20-Day Return
 
-Strategy Performance Summary
+Updates automatically every day.
+
+⸻
+
+Real Performance Analysis
+
+Analyzes:
+
+* Success Rate
+* Average Return
+* Best Return
+* Worst Return
+
+⸻
+
+Market Performance Analysis
+
+Performance grouped by:
+
+* Bull Market
+* Bear Market
+
+⸻
+
+Sector Performance Analysis
 
 Tracks:
 
-* Total recommendation count
-* Recommendation count by stock
-* Average return by stock
-* Success rate by stock
-* Stock performance ranking by average return
+* Semiconductor
+* Finance
+* Automobile
+* Battery
+* Chemical
+* Internet
+* Bio
+* Steel
+* Holdings
 
-Success condition:
+Measures:
 
-* Current return > 0
+* Recommendation Count
+* Success Rate
+* Average Return
 
-Email Notification
+⸻
 
-Sends a daily email report including:
+Factor Performance Analysis
 
-* Best recommended stock
-* Buy candidate ranking
-* Risk management summary
-* Current price
-* Current score
-* Final score
-* RSI
-* MACD
-* MACD Signal
-* MACD Histogram
-* Bollinger Upper Band
-* Bollinger Middle Band
-* Bollinger Lower Band
-* Bollinger Score
-* ATR
-* ATR Percent
-* ATR Score
-* Backtest win rate
-* Average return
-* Final simulated asset value
-* Buy availability
-* Recommended position size
+Analyzes performance by:
+
+RSI Range
+
+* 30~40
+* 40~50
+* 50~60
+* 60~70
+
+MACD Range
+
+* 0~500
+* 500~1000
+* 1000~2000
+* 2000+
+
+ATR Percent Range
+
+* 0~2%
+* 2~4%
+* 4~6%
+* 6~8%
+* 8%+
+
+Bollinger Score
+
+* +3
+* 0
+* -3
+
+Final Score
+
+* Below 0
+* 0~30
+* 30~50
+* 50~70
+* 70~100
+* 100+
+
+⸻
+
+Losing Pattern Analyzer
+
+Automatically analyzes losing recommendations.
+
+Examples:
+
+* Repeated sector losses
+* High ATR losses
+* RSI pattern losses
+* Bollinger pattern losses
+
+⸻
+
+Strategy Optimization Engine
+
+Generates automatic improvement suggestions.
+
+Example Suggestions:
+
+* Increase semiconductor penalty
+* Strengthen ATR risk filter
+* Tighten RSI entry range
+* Increase Bollinger penalties
+
+Currently:
+
+Observation Only
+
+No automatic strategy modification is performed.
+
+⸻
+
+Email Reporting
+
+Two Email Modes:
+
+Trading Email
+
+Sent only when:
+
+* Real trading allowed
+
+Contains:
+
+* Recommended stock
+* Position sizing
+* Risk analysis
+* Market condition
+
+Observation Email
+
+Sent when:
+
+* Real trading blocked
+
+Contains:
+
+* Top 3 observation candidates
+* Recommendation reasons
+* Strategy optimization suggestions
+* Risk warnings
+
+⸻
+
+CSV Reports
+
+Generated Files:
+
+* stock_report.csv
+* history.csv
+
+⸻
+
+Database
+
+Database File:
+
+stock_bot.db
+
+Tables include:
+
+* recommendations
+* recommendation_performance
+* observation_candidates
+* email_logs
+
+⸻
 
 Automatic Daily Execution
 
-Runs automatically using macOS launchd.
+Runs automatically through launchd.
 
-Current schedule:
+Current Schedule:
 
-* Every day at 09:00
+Every Day at 09:00
 
-Execution script:
+Execution Script:
 
 ./run.sh
 
 ⸻
 
 Environment Variables
-
-Create a .env file:
 
 EMAIL_ADDRESS=your_email@example.com
 EMAIL_PASSWORD=your_password
@@ -278,59 +430,19 @@ RISK_RATIO=0.3
 BUY_FEE_RATE=0.00015
 SELL_FEE_RATE=0.00195
 
-Variables
-
-Variable	Description
-EMAIL_ADDRESS	Sender email address
-EMAIL_PASSWORD	Email password or app password
-TO_EMAIL	Recipient email address
-CAPITAL	Total available capital
-RISK_RATIO	Percentage of capital allocated per trade
-BUY_FEE_RATE	Buy-side trading fee rate
-SELL_FEE_RATE	Sell-side trading fee and tax rate
-
-Example:
-
-CAPITAL=1000000
-RISK_RATIO=0.3
-BUY_FEE_RATE=0.00015
-SELL_FEE_RATE=0.00195
-
-Available investment amount:
-
-1,000,000 × 30% = 300,000 KRW
-
-Trading cost per round trip:
-
-0.015% + 0.195% = 0.21%
-
-⸻
-
-Example Output
-
-* Buy Candidate Ranking
-* Backtest Performance Ranking
-* Best Stock Recommendation
-* Recommendation History Summary
-* Recommendation Performance Tracking
-* Strategy Performance Summary
-* Stock Performance Ranking
-* MACD Metrics
-* Bollinger Band Analysis
-* ATR Volatility Analysis
-* Risk Management Summary
-* Daily Email Report
+ATR_STOP_MULTIPLIER=1.5
+ATR_TAKE_PROFIT_MULTIPLIER=3.0
 
 ⸻
 
 Technologies
 
 * Python
-* yfinance
 * pandas
+* yfinance
+* sqlite3
 * python-dotenv
 * smtplib
-* CSV
 * launchd
 
 ⸻
@@ -338,14 +450,14 @@ Technologies
 Future Improvements
 
 * Telegram Notifications
+* Discord Notifications
+* Machine Learning Ranking Models
 * Portfolio Optimization
-* Machine Learning Models
-* Real Trading Integration
-* Advanced Risk Management
 * Dynamic Position Sizing
-* Multi-Stock Portfolio Backtesting
-* AI-Based Stock Selection
 * Portfolio Rebalancing
-* Market Regime Detection
-* Database Integration
+* Multi-Stock Portfolio Simulation
+* AI-Based Factor Discovery
+* Automated Strategy Adjustment
+* Real Trading API Integration
 * Web Dashboard
+* Mobile Dashboard
