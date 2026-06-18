@@ -35,6 +35,7 @@ from factor_performance import analyze_atr_performance
 from factor_performance import analyze_bollinger_performance
 from factor_performance import analyze_final_score_performance
 from holding_period_performance import analyze_holding_period_performance
+from strategy_score import analyze_strategy_score
 
 
 initialize_database()
@@ -259,3 +260,4 @@ analyze_atr_performance()
 analyze_bollinger_performance()
 analyze_final_score_performance()
 analyze_holding_period_performance()
+analyze_strategy_score()
