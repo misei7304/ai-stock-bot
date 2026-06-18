@@ -50,6 +50,7 @@ from factor_penalty import apply_factor_penalty
 from score_adjustment_analyzer import analyze_score_adjustments
 from recommendation_reason_analyzer import analyze_recommendation_reason_performance
 from reason_score import apply_reason_score
+from observation_database import save_observation_candidate
 
 
 initialize_database()
@@ -300,6 +301,14 @@ if len(affordable_candidates) == 0:
 
     if len(buy_candidates) > 0:
         observation_stock = buy_candidates[0]
+
+        position = calculate_position(observation_stock)
+        observation_stock["position"] = position
+
+        save_observation_candidate(
+            observation_stock,
+            market_result
+        )
 
         if was_email_sent_today():
             print("오늘 이미 이메일을 발송했습니다. 이메일 발송 생략")
