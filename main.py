@@ -36,6 +36,7 @@ from factor_performance import analyze_bollinger_performance
 from factor_performance import analyze_final_score_performance
 from holding_period_performance import analyze_holding_period_performance
 from strategy_score import analyze_strategy_score
+from stock_real_performance import analyze_stock_real_performance
 
 
 initialize_database()
@@ -261,3 +262,4 @@ analyze_bollinger_performance()
 analyze_final_score_performance()
 analyze_holding_period_performance()
 analyze_strategy_score()
+analyze_stock_real_performance()
