@@ -43,6 +43,7 @@ MA20: {market_result['ma20']:,.2f}
 섹터: {best_stock['sector_name']}
 섹터 보너스: {best_stock['sector_bonus']}
 적응 보너스: {best_stock['adaptive_bonus']}
+섹터 패널티: {best_stock['sector_penalty']}
 팩터 패널티: {best_stock['factor_penalty']}
 현재점수: {best_stock['total_score']:.2f}
 RSI: {best_stock['rsi']:.2f}
