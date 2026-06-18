@@ -18,6 +18,8 @@ The system automatically:
 * Learns from losing recommendations
 * Generates strategy improvement suggestions
 * Blocks real trading until risk requirements are satisfied
+* Saves strategy evolution suggestions
+* Analyzes strategy improvement history
 
 The goal is to build a self-improving stock recommendation engine before enabling real-money trading.
 
@@ -348,6 +350,28 @@ No automatic strategy modification is performed.
 
 ⸻
 
+Strategy Evolution History
+
+The system stores daily strategy improvement suggestions in SQLite.
+
+It prevents duplicate strategy suggestions from being saved on the same day.
+
+Stores:
+
+* Evolution Date
+* Strategy Suggestion Text
+* Created Timestamp
+
+Analyzes:
+
+* Recent strategy improvement history
+* Previously generated suggestions
+* Strategy learning progress over time
+
+This allows the system to track how the strategy evolves before real trading is enabled.
+
+⸻
+
 Email Reporting
 
 Two Email Modes:
@@ -401,6 +425,7 @@ Tables include:
 * recommendation_performance
 * observation_candidates
 * email_logs
+* strategy_evolution
 
 ⸻
 
