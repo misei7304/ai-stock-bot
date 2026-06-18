@@ -260,6 +260,20 @@ if len(affordable_candidates) == 0:
 
     can_real_trade = check_real_risk_guard()
 
+    if len(buy_candidates) > 0:
+        observation_stock = buy_candidates[0]
+
+        if can_send_trade_email(can_real_trade):
+            send_email(observation_stock, buy_candidates, market_result)
+        else:
+            send_observation_email(
+                observation_stock,
+                buy_candidates,
+                market_result
+            )
+    else:
+        print("관찰용 이메일 발송 생략: 매수 후보가 없습니다.")
+
 save_report(results)
 analyze_history()
 analyze_recommendation_performance()
