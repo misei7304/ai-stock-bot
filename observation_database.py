@@ -3,7 +3,11 @@ from database import save_recommendation_to_database
 
 def save_observation_candidate(stock, market_result):
     try:
-        saved = save_recommendation_to_database(stock, market_result)
+        saved = save_recommendation_to_database(
+            stock,
+            market_result,
+            recommendation_type="observation"
+        )
 
         if saved:
             print("관찰 후보 DB 저장 완료")

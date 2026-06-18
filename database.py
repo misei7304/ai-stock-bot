@@ -56,6 +56,7 @@ def initialize_database():
         "factor_penalty": "REAL",
         "recommendation_reason": "TEXT",
         "strategy_version": "TEXT",
+        "recommendation_type": "TEXT",
     }
 
     for column_name, column_type in columns_to_add.items():
@@ -88,7 +89,7 @@ def initialize_database():
     connection.close()
 
 
-def save_recommendation_to_database(stock, market_result):
+def save_recommendation_to_database(stock, market_result, recommendation_type="real"):
     connection = get_connection()
     cursor = connection.cursor()
 
@@ -146,12 +147,13 @@ def save_recommendation_to_database(stock, market_result):
             factor_penalty,
             recommendation_reason,
             strategy_version,
+            recommendation_type,
             market_name,
             market_bull
         )
         VALUES (
             DATE('now', 'localtime'),
-            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
         )
     """, (
         stock["company_name"],
@@ -182,6 +184,7 @@ def save_recommendation_to_database(stock, market_result):
         stock["factor_penalty"],
         recommendation_reason,
         strategy_version,
+        recommendation_type,
         market_result["market_name"],
         1 if market_result["is_market_bull"] else 0,
     ))
