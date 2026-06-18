@@ -541,6 +541,34 @@ This helps determine whether a newly activated strategy version is actually impr
 
 ⸻
 
+Strategy Rollback Analysis
+
+The system analyzes whether the active strategy should be kept or considered for rollback.
+
+Rollback metrics:
+
+* Current Strategy Version
+* Previous Strategy Version
+* Current Version Average Return
+* Previous Version Average Return
+* Return Difference
+* Total Recommendation Count
+* Rollback Decision
+* Rollback Reason
+
+Rollback Decision Rules:
+
+* Hold: fewer than 20 total recommendations
+* Review Rollback: current version average return is more than 2 percentage points lower than the previous version
+* Caution: current version is lower than the previous version, but the difference is small
+* Keep: current version is equal to or better than the previous version
+
+The rollback analysis is printed in the terminal output and included in observation email reports.
+
+This prevents weak new strategy versions from staying active without performance review.
+
+⸻
+
 Strategy Upgrade Workflow
 
 The system supports a manual strategy upgrade workflow.
@@ -598,6 +626,7 @@ Contains:
 * Risk warnings
 * Strategy upgrade candidates
 * Strategy version comparison
+* Strategy rollback analysis
 
 ⸻
 
