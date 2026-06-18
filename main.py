@@ -42,6 +42,7 @@ from trade_permission import can_send_trade_email
 from observation_email_sender import send_observation_email
 from email_log import was_email_sent_today
 from email_log import mark_email_sent_today
+from recommendation_reason import generate_recommendation_reason
 
 
 initialize_database()
@@ -234,6 +235,9 @@ else:
     print(f"백테스트 승률: {best_stock['win_rate']:.2f}%")
     print(f"백테스트 평균수익: {best_stock['average_return']:.2f}%")
     print(f"백테스트 최종자산: {best_stock['final_money']:,.0f}원")
+
+    recommendation_reason = generate_recommendation_reason(best_stock, market_result)
+    print(f"추천 이유: {recommendation_reason}")
 
     print("\n리스크 관리")
     print(f"총 자본: {position['capital']:,.0f}원")
