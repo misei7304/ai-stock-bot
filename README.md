@@ -488,6 +488,8 @@ The system automatically loads the configuration from the currently active strat
 
 This allows strategy behavior to change by version without manually rewriting core logic.
 
+The active strategy configuration is printed in the terminal output at runtime and included in observation email reports.
+
 ⸻
 
 Strategy Version Performance Analysis
