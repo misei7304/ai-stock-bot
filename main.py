@@ -40,6 +40,8 @@ from stock_real_performance import analyze_stock_real_performance
 from real_risk_guard import check_real_risk_guard
 from trade_permission import can_send_trade_email
 from observation_email_sender import send_observation_email
+from email_log import was_email_sent_today
+from email_log import mark_email_sent_today
 
 
 initialize_database()
@@ -250,10 +252,15 @@ else:
 
     can_real_trade = check_real_risk_guard()
 
-    if can_send_trade_email(can_real_trade):
-        send_email(best_stock, buy_candidates, market_result)
+    if was_email_sent_today():
+        print("오늘 이미 이메일을 발송했습니다. 이메일 발송 생략")
     else:
-        send_observation_email(best_stock, buy_candidates, market_result)
+        if can_send_trade_email(can_real_trade):
+            send_email(best_stock, buy_candidates, market_result)
+        else:
+            send_observation_email(best_stock, buy_candidates, market_result)
+
+        mark_email_sent_today()
 
 
 if len(affordable_candidates) == 0:
@@ -263,14 +270,19 @@ if len(affordable_candidates) == 0:
     if len(buy_candidates) > 0:
         observation_stock = buy_candidates[0]
 
-        if can_send_trade_email(can_real_trade):
-            send_email(observation_stock, buy_candidates, market_result)
+        if was_email_sent_today():
+            print("오늘 이미 이메일을 발송했습니다. 이메일 발송 생략")
         else:
-            send_observation_email(
-                observation_stock,
-                buy_candidates,
-                market_result
-            )
+            if can_send_trade_email(can_real_trade):
+                send_email(observation_stock, buy_candidates, market_result)
+            else:
+                send_observation_email(
+                    observation_stock,
+                    buy_candidates,
+                    market_result
+                )
+
+            mark_email_sent_today()
     else:
         print("관찰용 이메일 발송 생략: 매수 후보가 없습니다.")
 
