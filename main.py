@@ -43,6 +43,7 @@ from observation_email_sender import send_observation_email
 from email_log import was_email_sent_today
 from email_log import mark_email_sent_today
 from recommendation_reason import generate_recommendation_reason
+from adaptive_score import apply_adaptive_score
 
 
 initialize_database()
@@ -110,6 +111,9 @@ for stock in results:
     stock["sector_bonus"] = sector_bonus
     stock["final_score"] = stock["final_score"] + sector_bonus
 
+for stock in results:
+    stock = apply_adaptive_score(stock)
+
 
 print("\n" + "#" * 80)
 print("현재 매수 후보 순위")
@@ -144,6 +148,7 @@ else:
             f"최종점수 {stock['final_score']:.2f} | "
             f"섹터 {stock['sector_name']} | "
             f"섹터보너스 {stock['sector_bonus']} | "
+            f"적응보너스 {stock['adaptive_bonus']} | "
             f"현재점수 {stock['total_score']:.2f} | "
             f"RSI {stock['rsi']:.2f} | "
             f"MACD {stock['macd']:.2f} | "
@@ -220,6 +225,7 @@ else:
     print(f"최종점수: {best_stock['final_score']:.2f}")
     print(f"섹터: {best_stock['sector_name']}")
     print(f"섹터 보너스: {best_stock['sector_bonus']}")
+    print(f"적응 보너스: {best_stock['adaptive_bonus']}")
     print(f"현재점수: {best_stock['total_score']:.2f}")
     print(f"RSI: {best_stock['rsi']:.2f}")
     print(f"MACD: {best_stock['macd']:.2f}")
