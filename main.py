@@ -48,6 +48,7 @@ from loss_analyzer import analyze_losing_patterns
 from sector_penalty import apply_sector_penalty
 from factor_penalty import apply_factor_penalty
 from score_adjustment_analyzer import analyze_score_adjustments
+from recommendation_reason_analyzer import analyze_recommendation_reason_performance
 
 
 initialize_database()
@@ -330,6 +331,7 @@ analyze_strategy_score()
 analyze_stock_real_performance()
 analyze_losing_patterns()
 analyze_score_adjustments()
+analyze_recommendation_reason_performance()
 
 print("\n" + "#" * 80)
 print("최종 실전 매수 판단")
