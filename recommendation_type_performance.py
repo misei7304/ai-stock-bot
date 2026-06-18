@@ -1,7 +1,7 @@
 from database import get_connection
 
 
-def analyze_recommendation_type_performance():
+def get_recommendation_type_performance_summary():
     connection = get_connection()
     cursor = connection.cursor()
 
@@ -24,13 +24,11 @@ def analyze_recommendation_type_performance():
     rows = cursor.fetchall()
     connection.close()
 
-    print("\n" + "#" * 80)
-    print("추천 유형별 성과 분석")
-    print("#" * 80)
+    summary = []
 
     if len(rows) == 0:
-        print("추천 유형별 성과 데이터가 없습니다.")
-        return
+        summary.append("추천 유형별 성과 데이터가 없습니다.")
+        return summary
 
     for row in rows:
         recommendation_type, recommendation_count, win_count, average_return, best_return, worst_return = row
@@ -40,10 +38,24 @@ def analyze_recommendation_type_performance():
 
         success_rate = win_count / recommendation_count * 100
 
-        print(f"\n추천 유형: {recommendation_type}")
-        print(f"추천수: {recommendation_count}회")
-        print(f"수익 추천수: {win_count}회")
-        print(f"성공률: {success_rate:.2f}%")
-        print(f"평균수익률: {average_return:.2f}%")
-        print(f"최고수익률: {best_return:.2f}%")
-        print(f"최저수익률: {worst_return:.2f}%")
+        summary.append(f"[{recommendation_type}]")
+        summary.append(f"추천수: {recommendation_count}회")
+        summary.append(f"수익 추천수: {win_count}회")
+        summary.append(f"성공률: {success_rate:.2f}%")
+        summary.append(f"평균수익률: {average_return:.2f}%")
+        summary.append(f"최고수익률: {best_return:.2f}%")
+        summary.append(f"최저수익률: {worst_return:.2f}%")
+        summary.append("")
+
+    return summary
+
+
+def analyze_recommendation_type_performance():
+    print("\n" + "#" * 80)
+    print("추천 유형별 성과 분석")
+    print("#" * 80)
+
+    summary = get_recommendation_type_performance_summary()
+
+    for line in summary:
+        print(line)

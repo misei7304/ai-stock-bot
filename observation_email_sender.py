@@ -7,6 +7,7 @@ from recommendation_reason import generate_recommendation_reason
 from strategy_optimizer import get_strategy_optimization_suggestions
 from strategy_version import get_current_strategy_version
 from strategy_version_performance import get_strategy_version_performance_summary
+from recommendation_type_performance import get_recommendation_type_performance_summary
 
 
 load_dotenv()
@@ -70,6 +71,7 @@ def send_observation_email(best_stock, buy_candidates, market_result):
 
     current_strategy_version = get_current_strategy_version()
     strategy_version_performance = "\n".join(get_strategy_version_performance_summary())
+    recommendation_type_performance = "\n".join(get_recommendation_type_performance_summary())
 
     body = f"""
 AI Stock Bot Observation Report
@@ -94,6 +96,10 @@ MA20: {market_result['ma20']:,.2f}
 [전략 버전별 성과]
 
 {strategy_version_performance}
+
+[추천 유형별 성과]
+
+{recommendation_type_performance}
 
 [자동 전략 개선 제안]
 
