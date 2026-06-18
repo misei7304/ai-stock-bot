@@ -41,6 +41,9 @@ MA20: {market_result['ma20']:,.2f}
 현재가: {best_stock['current_price']:,.0f}원
 최종점수: {best_stock['final_score']:.2f}
 섹터: {best_stock['sector_name']}
+섹터 보너스: {best_stock['sector_bonus']}
+적응 보너스: {best_stock['adaptive_bonus']}
+팩터 패널티: {best_stock['factor_penalty']}
 현재점수: {best_stock['total_score']:.2f}
 RSI: {best_stock['rsi']:.2f}
 MACD: {best_stock['macd']:.2f}
