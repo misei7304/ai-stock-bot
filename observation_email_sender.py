@@ -3,6 +3,7 @@ import smtplib
 from email.mime.text import MIMEText
 
 from dotenv import load_dotenv
+from recommendation_reason import generate_recommendation_reason
 
 
 load_dotenv()
@@ -14,6 +15,11 @@ TO_EMAIL = os.getenv("TO_EMAIL")
 
 def send_observation_email(best_stock, buy_candidates, market_result):
     subject = "[AI Stock Bot] Observation Report"
+
+    recommendation_reason = generate_recommendation_reason(
+        best_stock,
+        market_result
+    )
 
     body = f"""
 AI Stock Bot Observation Report
@@ -43,6 +49,10 @@ ATR%: {best_stock['atr_percent']:.2f}%
 백테스트 승률: {best_stock['win_rate']:.2f}%
 백테스트 평균수익: {best_stock['average_return']:.2f}%
 백테스트 최종자산: {best_stock['final_money']:,.0f}원
+
+[추천 이유]
+
+{recommendation_reason}
 
 [주의]
 
