@@ -214,3 +214,106 @@ def analyze_macd_performance():
         )
 
     connection.close()
+
+def get_atr_percent_bucket(atr_percent):
+    if atr_percent < 2:
+        return "0~2%"
+    elif atr_percent < 4:
+        return "2~4%"
+    elif atr_percent < 6:
+        return "4~6%"
+    elif atr_percent < 8:
+        return "6~8%"
+    else:
+        return "8%+"
+
+
+def analyze_atr_performance():
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        SELECT
+            r.atr_percent,
+            p.current_return
+        FROM recommendation_performance p
+        JOIN recommendations r
+        ON p.recommendation_id = r.id
+        WHERE p.current_return IS NOT NULL
+        AND r.atr_percent IS NOT NULL
+    """)
+
+    rows = cursor.fetchall()
+
+    print("\n" + "#" * 80)
+    print("ATR% 구간별 실전 성과 분석")
+    print("#" * 80)
+
+    if len(rows) == 0:
+        print("분석 가능한 ATR% 실전 성과 데이터가 없습니다.")
+        connection.close()
+        return
+
+    bucket_stats = {}
+
+    for atr_percent, current_return in rows:
+        bucket = get_atr_percent_bucket(atr_percent)
+
+        if bucket not in bucket_stats:
+            bucket_stats[bucket] = []
+
+        bucket_stats[bucket].append(current_return)
+
+    bucket_results = []
+
+    for bucket, returns in bucket_stats.items():
+        total_count = len(returns)
+        win_count = 0
+
+        for current_return in returns:
+            if current_return > 0:
+                win_count += 1
+
+        loss_count = total_count - win_count
+        success_rate = (win_count / total_count) * 100
+        average_return = sum(returns) / total_count
+        best_return = max(returns)
+        worst_return = min(returns)
+
+        bucket_results.append({
+            "bucket": bucket,
+            "total_count": total_count,
+            "win_count": win_count,
+            "loss_count": loss_count,
+            "success_rate": success_rate,
+            "average_return": average_return,
+            "best_return": best_return,
+            "worst_return": worst_return,
+        })
+
+    bucket_order = {
+        "0~2%": 1,
+        "2~4%": 2,
+        "4~6%": 3,
+        "6~8%": 4,
+        "8%+": 5,
+    }
+
+    bucket_results = sorted(
+        bucket_results,
+        key=lambda x: bucket_order[x["bucket"]]
+    )
+
+    for result in bucket_results:
+        print(
+            f"{result['bucket']} | "
+            f"추천수 {result['total_count']}회 | "
+            f"수익중 {result['win_count']}회 | "
+            f"손실/보합 {result['loss_count']}회 | "
+            f"성공률 {result['success_rate']:.2f}% | "
+            f"평균수익률 {result['average_return']:.2f}% | "
+            f"최고수익률 {result['best_return']:.2f}% | "
+            f"최저수익률 {result['worst_return']:.2f}%"
+        )
+
+    connection.close()
