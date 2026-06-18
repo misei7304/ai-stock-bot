@@ -39,6 +39,7 @@ from strategy_score import analyze_strategy_score
 from stock_real_performance import analyze_stock_real_performance
 from real_risk_guard import check_real_risk_guard
 from trade_permission import can_send_trade_email
+from observation_email_sender import send_observation_email
 
 
 initialize_database()
@@ -252,7 +253,7 @@ else:
     if can_send_trade_email(can_real_trade):
         send_email(best_stock, buy_candidates, market_result)
     else:
-        print("실전 리스크 기준 미통과로 이메일 발송 생략")
+        send_observation_email(best_stock, buy_candidates, market_result)
 
 
 if len(affordable_candidates) == 0:
