@@ -107,3 +107,31 @@ def analyze_losing_patterns():
         )
 
     connection.close()
+
+def get_losing_recommendations():
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        SELECT
+            r.rsi,
+            r.atr_percent
+        FROM recommendation_performance p
+        JOIN recommendations r
+        ON p.recommendation_id = r.id
+        WHERE p.current_return IS NOT NULL
+        AND p.current_return < 0
+    """)
+
+    rows = cursor.fetchall()
+    connection.close()
+
+    losing_recommendations = []
+
+    for row in rows:
+        losing_recommendations.append({
+            "rsi": row[0],
+            "atr_percent": row[1],
+        })
+
+    return losing_recommendations

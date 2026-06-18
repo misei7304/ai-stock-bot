@@ -65,6 +65,7 @@ from strategy_config import initialize_strategy_config
 from strategy_version_comparison import analyze_strategy_version_comparison
 from strategy_rollback_analyzer import analyze_strategy_rollback
 from strategy_candidate_reviewer import review_strategy_candidates
+from strategy_config_optimizer import analyze_strategy_config_optimization
 
 
 initialize_database()
@@ -370,6 +371,7 @@ analyze_holding_period_performance()
 analyze_strategy_score()
 analyze_stock_real_performance()
 analyze_losing_patterns()
+analyze_strategy_config_optimization()
 analyze_score_adjustments()
 analyze_recommendation_reason_performance()
 analyze_strategy_optimization_suggestions()
