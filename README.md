@@ -577,18 +577,28 @@ Workflow:
 
 1. Generate strategy improvement suggestions
 2. Save valid suggestions as strategy upgrade candidates
-3. Review pending candidates
-4. Approve reviewed candidates
-5. Create a new strategy version from an approved candidate
+3. Review pending candidates using review_candidate.py
+4. Approve reviewed candidates using approve_candidate.py
+5. Create a new strategy version from an approved candidate using create_strategy_version_from_candidate.py
 6. Activate the new strategy version
 
 Candidate Status Flow:
 
 pending → reviewed → approved → version_created
 
-The system does not automatically apply new strategies without review and approval.
+Manual Commands:
 
-This prevents weak or incomplete suggestions from changing the active strategy.
+python review_candidate.py 후보ID
+python approve_candidate.py 후보ID
+python create_strategy_version_from_candidate.py 후보ID 새버전
+
+Example:
+
+python review_candidate.py 2
+python approve_candidate.py 2
+python create_strategy_version_from_candidate.py 2 v1.2.0
+
+A strategy version can only be created from a candidate with approved status.
 
 ⸻
 
@@ -661,6 +671,15 @@ Key Recommendation Fields:
 * recommendation_type
 * market_name
 * market_bull
+
+Strategy upgrade candidates use the following status flow:
+
+* pending
+* reviewed
+* approved
+* version_created
+
+Only approved candidates can be converted into new strategy versions.
 
 ⸻
 
