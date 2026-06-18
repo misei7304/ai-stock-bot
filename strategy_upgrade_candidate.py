@@ -61,3 +61,45 @@ def save_strategy_upgrade_candidate():
 
     print("전략 업그레이드 후보 저장 완료")
     return True
+
+def get_pending_strategy_candidates():
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS strategy_upgrade_candidates (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            base_version TEXT NOT NULL,
+            suggestion_text TEXT NOT NULL,
+            status TEXT DEFAULT 'pending',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    cursor.execute("""
+        SELECT
+            id,
+            base_version,
+            suggestion_text,
+            status,
+            created_at
+        FROM strategy_upgrade_candidates
+        WHERE status = 'pending'
+        ORDER BY id DESC
+    """)
+
+    rows = cursor.fetchall()
+    connection.close()
+
+    candidates = []
+
+    for row in rows:
+        candidates.append({
+            "id": row[0],
+            "base_version": row[1],
+            "suggestion": row[2],
+            "status": row[3],
+            "created_at": row[4],
+        })
+
+    return candidates

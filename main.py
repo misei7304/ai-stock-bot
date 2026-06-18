@@ -63,6 +63,7 @@ from strategy_upgrade_candidate_analyzer import analyze_strategy_upgrade_candida
 from strategy_config import get_strategy_config_summary
 from strategy_version_comparison import analyze_strategy_version_comparison
 from strategy_rollback_analyzer import analyze_strategy_rollback
+from strategy_candidate_reviewer import review_strategy_candidates
 
 
 initialize_database()
@@ -373,6 +374,7 @@ analyze_strategy_optimization_suggestions()
 save_strategy_evolution()
 save_strategy_upgrade_candidate()
 analyze_strategy_upgrade_candidates()
+review_strategy_candidates()
 analyze_strategy_evolution_history()
 analyze_strategy_version_performance()
 analyze_strategy_version_comparison()
