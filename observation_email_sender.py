@@ -4,6 +4,7 @@ from email.mime.text import MIMEText
 
 from dotenv import load_dotenv
 from recommendation_reason import generate_recommendation_reason
+from strategy_optimizer import get_strategy_optimization_suggestions
 
 
 load_dotenv()
@@ -63,6 +64,8 @@ def send_observation_email(best_stock, buy_candidates, market_result):
         )
         rank += 1
 
+    strategy_suggestions = "\n".join(get_strategy_optimization_suggestions())
+
     body = f"""
 AI Stock Bot Observation Report
 
@@ -78,6 +81,10 @@ MA20: {market_result['ma20']:,.2f}
 
 [관찰 종목 TOP 3]
 {observation_text}
+
+[자동 전략 개선 제안]
+
+{strategy_suggestions}
 
 [주의]
 
