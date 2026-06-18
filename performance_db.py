@@ -1,20 +1,42 @@
+import pandas as pd
 import yfinance as yf
 
 from database import get_connection
 
 
-def get_current_price(ticker):
+def get_price_data(ticker):
     stock = yf.Ticker(ticker)
-    data = stock.history(period="5d")
+    data = stock.history(period="1y")
+
+    data = data.dropna(subset=["Close"])
 
     if data.empty:
         return None
 
-    return data["Close"].iloc[-1]
+    data = data.reset_index()
+    data["Date"] = pd.to_datetime(data["Date"]).dt.tz_localize(None).dt.date
+
+    return data
 
 
-def calculate_return(recommended_price, current_price):
-    return ((current_price - recommended_price) / recommended_price) * 100
+def calculate_return(recommended_price, target_price):
+    return ((target_price - recommended_price) / recommended_price) * 100
+
+
+def get_return_after_days(data, recommendation_date, recommended_price, days):
+    after_recommendation = data[
+        data["Date"] >= recommendation_date
+    ].reset_index(drop=True)
+
+    if len(after_recommendation) <= days:
+        return None
+
+    target_price = after_recommendation["Close"].iloc[days]
+
+    if pd.isna(target_price):
+        return None
+
+    return calculate_return(recommended_price, target_price)
 
 
 def update_recommendation_performance():
@@ -51,15 +73,52 @@ def update_recommendation_performance():
             recommended_price,
         ) = recommendation
 
-        current_price = get_current_price(ticker)
+        recommendation_date = pd.to_datetime(recommendation_date).date()
 
-        if current_price is None:
+        data = get_price_data(ticker)
+
+        if data is None:
+            print(f"{company_name} | 가격 데이터 없음")
+            continue
+
+        after_recommendation = data[
+            data["Date"] >= recommendation_date
+        ].reset_index(drop=True)
+
+        if len(after_recommendation) == 0:
+            print(f"{company_name} | 추천 이후 가격 데이터 없음")
+            continue
+
+        current_price = after_recommendation["Close"].iloc[-1]
+
+        if pd.isna(current_price):
             print(f"{company_name} | 현재가 데이터 없음")
             continue
 
         current_return = calculate_return(
             recommended_price,
             current_price
+        )
+
+        return_1d = get_return_after_days(
+            data,
+            recommendation_date,
+            recommended_price,
+            1
+        )
+
+        return_5d = get_return_after_days(
+            data,
+            recommendation_date,
+            recommended_price,
+            5
+        )
+
+        return_20d = get_return_after_days(
+            data,
+            recommendation_date,
+            recommended_price,
+            20
         )
 
         cursor.execute("""
@@ -78,11 +137,17 @@ def update_recommendation_performance():
                 SET
                     current_price = ?,
                     current_return = ?,
+                    return_1d = ?,
+                    return_5d = ?,
+                    return_20d = ?,
                     updated_at = CURRENT_TIMESTAMP
                 WHERE recommendation_id = ?
             """, (
                 current_price,
                 current_return,
+                return_1d,
+                return_5d,
+                return_20d,
                 recommendation_id,
             ))
 
@@ -100,7 +165,7 @@ def update_recommendation_performance():
                     return_5d,
                     return_20d
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, NULL, NULL, NULL)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 recommendation_id,
                 ticker,
@@ -109,6 +174,9 @@ def update_recommendation_performance():
                 recommended_price,
                 current_price,
                 current_return,
+                return_1d,
+                return_5d,
+                return_20d,
             ))
 
         print(
@@ -119,6 +187,21 @@ def update_recommendation_performance():
             f"현재가 {current_price:,.0f}원 | "
             f"현재수익률 {current_return:.2f}%"
         )
+
+        if return_1d is None:
+            print("  1거래일 후 수익률: 데이터 부족")
+        else:
+            print(f"  1거래일 후 수익률: {return_1d:.2f}%")
+
+        if return_5d is None:
+            print("  5거래일 후 수익률: 데이터 부족")
+        else:
+            print(f"  5거래일 후 수익률: {return_5d:.2f}%")
+
+        if return_20d is None:
+            print("  20거래일 후 수익률: 데이터 부족")
+        else:
+            print(f"  20거래일 후 수익률: {return_20d:.2f}%")
 
     connection.commit()
     connection.close()
