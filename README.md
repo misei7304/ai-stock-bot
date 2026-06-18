@@ -516,6 +516,31 @@ This allows objective evaluation of strategy upgrades.
 
 ⸻
 
+Strategy Version Comparison
+
+The system compares the currently active strategy version with the previous strategy version.
+
+Comparison metrics:
+
+* Current Strategy Version
+* Previous Strategy Version
+* Average Return Change
+* Improvement Difference
+* Better Performing Version
+* Confidence Level
+
+Confidence Level:
+
+* Low: fewer than 20 total recommendations
+* Medium: fewer than 100 total recommendations
+* High: 100 or more total recommendations
+
+The comparison is printed in the terminal output and included in observation email reports.
+
+This helps determine whether a newly activated strategy version is actually improving performance over the previous version.
+
+⸻
+
 Strategy Upgrade Workflow
 
 The system supports a manual strategy upgrade workflow.
@@ -572,6 +597,7 @@ Contains:
 * Strategy optimization suggestions
 * Risk warnings
 * Strategy upgrade candidates
+* Strategy version comparison
 
 ⸻
 
