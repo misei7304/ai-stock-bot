@@ -9,6 +9,7 @@ from strategy_version import get_current_strategy_version
 from strategy_version_performance import get_strategy_version_performance_summary
 from recommendation_type_performance import get_recommendation_type_performance_summary
 from strategy_upgrade_candidate_analyzer import get_strategy_upgrade_candidate_summary
+from strategy_config import get_strategy_config_summary
 
 
 load_dotenv()
@@ -72,6 +73,10 @@ def send_observation_email(best_stock, buy_candidates, market_result):
 
     current_strategy_version = get_current_strategy_version()
 
+    strategy_config_summary = "\n".join(
+        get_strategy_config_summary()
+    )
+
     strategy_version_performance = "\n".join(
         get_strategy_version_performance_summary()
     )
@@ -103,6 +108,10 @@ MA20: {market_result['ma20']:,.2f}
 [현재 전략 버전]
 
 {current_strategy_version}
+
+[현재 전략 설정]
+
+{strategy_config_summary}
 
 [전략 버전별 성과]
 

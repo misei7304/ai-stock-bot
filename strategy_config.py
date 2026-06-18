@@ -23,3 +23,12 @@ def get_strategy_config():
         "atr_penalty_threshold": 8,
         "factor_penalty": -4,
     }
+
+def get_strategy_config_summary():
+    config = get_strategy_config()
+
+    return [
+        f"RSI 제한: {config['rsi_limit']}",
+        f"ATR 패널티 기준: {config['atr_penalty_threshold']}%",
+        f"팩터 패널티: {config['factor_penalty']}",
+    ]
