@@ -54,9 +54,12 @@ from observation_database import save_observation_candidate
 from strategy_optimizer import analyze_strategy_optimization_suggestions
 from strategy_evolution import save_strategy_evolution
 from strategy_evolution_analyzer import analyze_strategy_evolution_history
+from strategy_version import initialize_strategy_version
+from strategy_version import get_current_strategy_version
 
 
 initialize_database()
+initialize_strategy_version()
 
 market_result = analyze_market()
 

@@ -55,6 +55,7 @@ def initialize_database():
         "sector_penalty": "REAL",
         "factor_penalty": "REAL",
         "recommendation_reason": "TEXT",
+        "strategy_version": "TEXT",
     }
 
     for column_name, column_type in columns_to_add.items():
@@ -111,6 +112,9 @@ def save_recommendation_to_database(stock, market_result):
 
     recommendation_reason = generate_recommendation_reason(stock, market_result)
 
+    from strategy_version import get_current_strategy_version
+    strategy_version = get_current_strategy_version()
+
     cursor.execute("""
         INSERT INTO recommendations (
             recommendation_date,
@@ -141,12 +145,13 @@ def save_recommendation_to_database(stock, market_result):
             sector_penalty,
             factor_penalty,
             recommendation_reason,
+            strategy_version,
             market_name,
             market_bull
         )
         VALUES (
             DATE('now', 'localtime'),
-            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
         )
     """, (
         stock["company_name"],
@@ -176,6 +181,7 @@ def save_recommendation_to_database(stock, market_result):
         stock["sector_penalty"],
         stock["factor_penalty"],
         recommendation_reason,
+        strategy_version,
         market_result["market_name"],
         1 if market_result["is_market_bull"] else 0,
     ))
