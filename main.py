@@ -37,6 +37,7 @@ from factor_performance import analyze_final_score_performance
 from holding_period_performance import analyze_holding_period_performance
 from strategy_score import analyze_strategy_score
 from stock_real_performance import analyze_stock_real_performance
+from real_risk_guard import check_real_risk_guard
 
 
 initialize_database()
@@ -263,3 +264,4 @@ analyze_final_score_performance()
 analyze_holding_period_performance()
 analyze_strategy_score()
 analyze_stock_real_performance()
+check_real_risk_guard()
