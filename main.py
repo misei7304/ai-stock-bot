@@ -33,6 +33,7 @@ from factor_performance import analyze_rsi_performance
 from factor_performance import analyze_macd_performance
 from factor_performance import analyze_atr_performance
 from factor_performance import analyze_bollinger_performance
+from factor_performance import analyze_final_score_performance
 
 
 initialize_database()
@@ -255,3 +256,4 @@ analyze_rsi_performance()
 analyze_macd_performance()
 analyze_atr_performance()
 analyze_bollinger_performance()
+analyze_final_score_performance()

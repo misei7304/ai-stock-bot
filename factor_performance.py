@@ -398,3 +398,109 @@ def analyze_bollinger_performance():
         )
 
     connection.close()
+
+def get_final_score_bucket(final_score):
+    if final_score < 0:
+        return "0점 미만"
+    elif final_score < 30:
+        return "0~30"
+    elif final_score < 50:
+        return "30~50"
+    elif final_score < 70:
+        return "50~70"
+    elif final_score < 100:
+        return "70~100"
+    else:
+        return "100+"
+
+
+def analyze_final_score_performance():
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        SELECT
+            r.final_score,
+            p.current_return
+        FROM recommendation_performance p
+        JOIN recommendations r
+        ON p.recommendation_id = r.id
+        WHERE p.current_return IS NOT NULL
+        AND r.final_score IS NOT NULL
+    """)
+
+    rows = cursor.fetchall()
+
+    print("\n" + "#" * 80)
+    print("최종점수 구간별 실전 성과 분석")
+    print("#" * 80)
+
+    if len(rows) == 0:
+        print("분석 가능한 최종점수 실전 성과 데이터가 없습니다.")
+        connection.close()
+        return
+
+    bucket_stats = {}
+
+    for final_score, current_return in rows:
+        bucket = get_final_score_bucket(final_score)
+
+        if bucket not in bucket_stats:
+            bucket_stats[bucket] = []
+
+        bucket_stats[bucket].append(current_return)
+
+    bucket_results = []
+
+    for bucket, returns in bucket_stats.items():
+        total_count = len(returns)
+        win_count = 0
+
+        for current_return in returns:
+            if current_return > 0:
+                win_count += 1
+
+        loss_count = total_count - win_count
+        success_rate = (win_count / total_count) * 100
+        average_return = sum(returns) / total_count
+        best_return = max(returns)
+        worst_return = min(returns)
+
+        bucket_results.append({
+            "bucket": bucket,
+            "total_count": total_count,
+            "win_count": win_count,
+            "loss_count": loss_count,
+            "success_rate": success_rate,
+            "average_return": average_return,
+            "best_return": best_return,
+            "worst_return": worst_return,
+        })
+
+    bucket_order = {
+        "0점 미만": 1,
+        "0~30": 2,
+        "30~50": 3,
+        "50~70": 4,
+        "70~100": 5,
+        "100+": 6,
+    }
+
+    bucket_results = sorted(
+        bucket_results,
+        key=lambda x: bucket_order[x["bucket"]]
+    )
+
+    for result in bucket_results:
+        print(
+            f"{result['bucket']} | "
+            f"추천수 {result['total_count']}회 | "
+            f"수익중 {result['win_count']}회 | "
+            f"손실/보합 {result['loss_count']}회 | "
+            f"성공률 {result['success_rate']:.2f}% | "
+            f"평균수익률 {result['average_return']:.2f}% | "
+            f"최고수익률 {result['best_return']:.2f}% | "
+            f"최저수익률 {result['worst_return']:.2f}%"
+        )
+
+    connection.close()
