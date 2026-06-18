@@ -20,7 +20,7 @@ def check_real_risk_guard():
     if len(rows) == 0:
         print("실전 데이터 부족: 실제 매수 금지, 관찰만 권장")
         connection.close()
-        return
+        return False
 
     returns = [row[0] for row in rows]
 
@@ -38,6 +38,8 @@ def check_real_risk_guard():
     print(f"성공률: {success_rate:.2f}%")
     print(f"평균수익률: {average_return:.2f}%")
 
+    can_real_trade = False
+
     if total_count < 20:
         print("판단: 실전 데이터 부족")
         print("조치: 실제 매수 금지, 최소 20회 추천 기록까지 관찰만")
@@ -50,5 +52,8 @@ def check_real_risk_guard():
     else:
         print("판단: 실전 매수 검토 가능")
         print("조치: 소액 테스트 가능")
+        can_real_trade = True
 
     connection.close()
+
+    return can_real_trade

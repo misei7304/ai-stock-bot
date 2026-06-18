@@ -264,4 +264,14 @@ analyze_final_score_performance()
 analyze_holding_period_performance()
 analyze_strategy_score()
 analyze_stock_real_performance()
-check_real_risk_guard()
+can_real_trade = check_real_risk_guard()
+
+print("\n" + "#" * 80)
+print("최종 실전 매수 판단")
+print("#" * 80)
+
+if can_real_trade:
+    print("최종판단: 실제 매수 검토 가능")
+else:
+    print("최종판단: 실제 매수 금지")
+    print("이유: 실전 리스크 기준을 통과하지 못했습니다.")
