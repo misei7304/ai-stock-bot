@@ -56,6 +56,7 @@ from strategy_evolution import save_strategy_evolution
 from strategy_evolution_analyzer import analyze_strategy_evolution_history
 from strategy_version import initialize_strategy_version
 from strategy_version import get_current_strategy_version
+from strategy_version_performance import analyze_strategy_version_performance
 
 
 initialize_database()
@@ -358,6 +359,7 @@ analyze_recommendation_reason_performance()
 analyze_strategy_optimization_suggestions()
 save_strategy_evolution()
 analyze_strategy_evolution_history()
+analyze_strategy_version_performance()
 
 print("\n" + "#" * 80)
 print("최종 실전 매수 판단")
