@@ -58,6 +58,7 @@ from strategy_version import initialize_strategy_version
 from strategy_version import get_current_strategy_version
 from strategy_version_performance import analyze_strategy_version_performance
 from recommendation_type_performance import analyze_recommendation_type_performance
+from strategy_upgrade_candidate import save_strategy_upgrade_candidate
 
 
 initialize_database()
@@ -359,6 +360,7 @@ analyze_score_adjustments()
 analyze_recommendation_reason_performance()
 analyze_strategy_optimization_suggestions()
 save_strategy_evolution()
+save_strategy_upgrade_candidate()
 analyze_strategy_evolution_history()
 analyze_strategy_version_performance()
 analyze_recommendation_type_performance()
