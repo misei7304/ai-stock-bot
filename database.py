@@ -105,7 +105,7 @@ def save_recommendation_to_database(stock, market_result):
     if existing_count > 0:
         connection.close()
         print("이미 오늘 DB 추천 기록이 있습니다. DB 저장 생략")
-        return
+        return False
 
     position = stock["position"]
 
@@ -184,3 +184,4 @@ def save_recommendation_to_database(stock, market_result):
     connection.close()
 
     print("DB 추천 기록 저장 완료")
+    return True
