@@ -61,6 +61,7 @@ from recommendation_type_performance import analyze_recommendation_type_performa
 from strategy_upgrade_candidate import save_strategy_upgrade_candidate
 from strategy_upgrade_candidate_analyzer import analyze_strategy_upgrade_candidates
 from strategy_config import get_strategy_config_summary
+from strategy_config import initialize_strategy_config
 from strategy_version_comparison import analyze_strategy_version_comparison
 from strategy_rollback_analyzer import analyze_strategy_rollback
 from strategy_candidate_reviewer import review_strategy_candidates
@@ -68,6 +69,7 @@ from strategy_candidate_reviewer import review_strategy_candidates
 
 initialize_database()
 initialize_strategy_version()
+initialize_strategy_config()
 
 print("\n" + "#" * 80)
 print("현재 활성 전략 설정")
