@@ -1,9 +1,12 @@
 import sys
 
 from database import get_connection
+from strategy_config import initialize_strategy_config
 
 
 def create_strategy_version_from_candidate(candidate_id, new_version):
+    initialize_strategy_config()
+
     connection = get_connection()
     cursor = connection.cursor()
 
@@ -42,6 +45,43 @@ def create_strategy_version_from_candidate(candidate_id, new_version):
         f"Strategy upgraded from {base_version}",
         suggestion_text,
         0,
+    ))
+
+    cursor.execute("""
+        SELECT
+            rsi_limit,
+            atr_penalty_threshold,
+            factor_penalty
+        FROM strategy_configs
+        WHERE strategy_version = ?
+    """, (
+        base_version,
+    ))
+
+    base_config = cursor.fetchone()
+
+    if base_config is None:
+        rsi_limit = 70
+        atr_penalty_threshold = 8
+        factor_penalty = -4
+    else:
+        rsi_limit = base_config[0]
+        atr_penalty_threshold = base_config[1]
+        factor_penalty = base_config[2]
+
+    cursor.execute("""
+        INSERT OR IGNORE INTO strategy_configs (
+            strategy_version,
+            rsi_limit,
+            atr_penalty_threshold,
+            factor_penalty
+        )
+        VALUES (?, ?, ?, ?)
+    """, (
+        new_version,
+        rsi_limit,
+        atr_penalty_threshold,
+        factor_penalty,
     ))
 
     cursor.execute("""
