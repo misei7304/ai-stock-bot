@@ -128,3 +128,28 @@ def mark_strategy_candidate_reviewed(candidate_id):
 
     print(f"후보 검토 완료: ID {candidate_id}")
     return True
+
+def approve_strategy_candidate(candidate_id):
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        UPDATE strategy_upgrade_candidates
+        SET status = 'approved'
+        WHERE id = ?
+        AND status = 'reviewed'
+    """, (
+        candidate_id,
+    ))
+
+    updated_count = cursor.rowcount
+
+    connection.commit()
+    connection.close()
+
+    if updated_count == 0:
+        print(f"후보 승인 실패: ID {candidate_id}")
+        return False
+
+    print(f"후보 승인 완료: ID {candidate_id}")
+    return True
