@@ -1,5 +1,7 @@
 import sqlite3
 
+from recommendation_reason import generate_recommendation_reason
+
 
 DATABASE_NAME = "stock_bot.db"
 
@@ -48,15 +50,18 @@ def initialize_database():
         )
     """)
 
-    for column_name in [
-        "adaptive_bonus",
-        "sector_penalty",
-        "factor_penalty",
-    ]:
+    columns_to_add = {
+        "adaptive_bonus": "REAL",
+        "sector_penalty": "REAL",
+        "factor_penalty": "REAL",
+        "recommendation_reason": "TEXT",
+    }
+
+    for column_name, column_type in columns_to_add.items():
         try:
             cursor.execute(f"""
                 ALTER TABLE recommendations
-                ADD COLUMN {column_name} REAL
+                ADD COLUMN {column_name} {column_type}
             """)
         except sqlite3.OperationalError:
             pass
@@ -104,6 +109,8 @@ def save_recommendation_to_database(stock, market_result):
 
     position = stock["position"]
 
+    recommendation_reason = generate_recommendation_reason(stock, market_result)
+
     cursor.execute("""
         INSERT INTO recommendations (
             recommendation_date,
@@ -133,12 +140,13 @@ def save_recommendation_to_database(stock, market_result):
             adaptive_bonus,
             sector_penalty,
             factor_penalty,
+            recommendation_reason,
             market_name,
             market_bull
         )
         VALUES (
             DATE('now', 'localtime'),
-            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+            ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
         )
     """, (
         stock["company_name"],
@@ -167,6 +175,7 @@ def save_recommendation_to_database(stock, market_result):
         stock["adaptive_bonus"],
         stock["sector_penalty"],
         stock["factor_penalty"],
+        recommendation_reason,
         market_result["market_name"],
         1 if market_result["is_market_bull"] else 0,
     ))
