@@ -13,19 +13,61 @@ EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
 TO_EMAIL = os.getenv("TO_EMAIL")
 
 
+def format_observation_stock(stock, market_result, rank):
+    recommendation_reason = generate_recommendation_reason(
+        stock,
+        market_result
+    )
+
+    return f"""
+[{rank}위 관찰 종목]
+
+종목명: {stock['company_name']}
+종목코드: {stock['ticker']}
+현재가: {stock['current_price']:,.0f}원
+최종점수: {stock['final_score']:.2f}
+섹터: {stock['sector_name']}
+섹터 보너스: {stock['sector_bonus']}
+적응 보너스: {stock['adaptive_bonus']}
+섹터 패널티: {stock['sector_penalty']}
+팩터 패널티: {stock['factor_penalty']}
+이유 점수: {stock['reason_score']}
+현재점수: {stock['total_score']:.2f}
+RSI: {stock['rsi']:.2f}
+MACD: {stock['macd']:.2f}
+MACD Signal: {stock['macd_signal']:.2f}
+ATR%: {stock['atr_percent']:.2f}%
+백테스트 승률: {stock['win_rate']:.2f}%
+백테스트 평균수익: {stock['average_return']:.2f}%
+백테스트 최종자산: {stock['final_money']:,.0f}원
+
+추천 이유:
+{recommendation_reason}
+"""
+
+
 def send_observation_email(best_stock, buy_candidates, market_result):
     subject = "[AI Stock Bot] Observation Report"
 
-    recommendation_reason = generate_recommendation_reason(
-        best_stock,
-        market_result
-    )
+    observation_candidates = buy_candidates[:3]
+
+    observation_text = ""
+
+    rank = 1
+
+    for stock in observation_candidates:
+        observation_text += format_observation_stock(
+            stock,
+            market_result,
+            rank
+        )
+        rank += 1
 
     body = f"""
 AI Stock Bot Observation Report
 
 실전 매수 금지 상태입니다.
-아래 종목은 실제 매수용이 아니라 관찰용 추천입니다.
+아래 종목들은 실제 매수용이 아니라 관찰용 추천입니다.
 
 [시장 상태]
 
@@ -34,29 +76,8 @@ AI Stock Bot Observation Report
 MA20: {market_result['ma20']:,.2f}
 시장 상태: {"상승장" if market_result["is_market_bull"] else "하락장 또는 약세장"}
 
-[관찰 종목]
-
-종목명: {best_stock['company_name']}
-종목코드: {best_stock['ticker']}
-현재가: {best_stock['current_price']:,.0f}원
-최종점수: {best_stock['final_score']:.2f}
-섹터: {best_stock['sector_name']}
-섹터 보너스: {best_stock['sector_bonus']}
-적응 보너스: {best_stock['adaptive_bonus']}
-섹터 패널티: {best_stock['sector_penalty']}
-팩터 패널티: {best_stock['factor_penalty']}
-현재점수: {best_stock['total_score']:.2f}
-RSI: {best_stock['rsi']:.2f}
-MACD: {best_stock['macd']:.2f}
-MACD Signal: {best_stock['macd_signal']:.2f}
-ATR%: {best_stock['atr_percent']:.2f}%
-백테스트 승률: {best_stock['win_rate']:.2f}%
-백테스트 평균수익: {best_stock['average_return']:.2f}%
-백테스트 최종자산: {best_stock['final_money']:,.0f}원
-
-[추천 이유]
-
-{recommendation_reason}
+[관찰 종목 TOP 3]
+{observation_text}
 
 [주의]
 
