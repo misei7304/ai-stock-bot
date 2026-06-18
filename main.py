@@ -29,6 +29,7 @@ from performance_db import update_recommendation_performance
 from real_performance import analyze_real_performance
 from market_performance import analyze_market_performance
 from sector_real_performance import analyze_sector_real_performance
+from factor_performance import analyze_rsi_performance
 
 
 initialize_database()
@@ -247,3 +248,4 @@ update_recommendation_performance()
 analyze_real_performance()
 analyze_market_performance()
 analyze_sector_real_performance()
+analyze_rsi_performance()
