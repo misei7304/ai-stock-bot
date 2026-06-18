@@ -103,3 +103,28 @@ def get_pending_strategy_candidates():
         })
 
     return candidates
+
+def mark_strategy_candidate_reviewed(candidate_id):
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        UPDATE strategy_upgrade_candidates
+        SET status = 'reviewed'
+        WHERE id = ?
+        AND status = 'pending'
+    """, (
+        candidate_id,
+    ))
+
+    updated_count = cursor.rowcount
+
+    connection.commit()
+    connection.close()
+
+    if updated_count == 0:
+        print(f"후보 검토 처리 실패: ID {candidate_id}")
+        return False
+
+    print(f"후보 검토 완료: ID {candidate_id}")
+    return True
