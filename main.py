@@ -34,6 +34,7 @@ from factor_performance import analyze_macd_performance
 from factor_performance import analyze_atr_performance
 from factor_performance import analyze_bollinger_performance
 from factor_performance import analyze_final_score_performance
+from holding_period_performance import analyze_holding_period_performance
 
 
 initialize_database()
@@ -257,3 +258,4 @@ analyze_macd_performance()
 analyze_atr_performance()
 analyze_bollinger_performance()
 analyze_final_score_performance()
+analyze_holding_period_performance()
