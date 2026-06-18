@@ -73,4 +73,54 @@ def initialize_strategy_version():
 
 
 def get_current_strategy_version():
-    return CURRENT_STRATEGY_VERSION
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        SELECT version
+        FROM strategy_versions
+        WHERE is_active = 1
+        ORDER BY id DESC
+        LIMIT 1
+    """)
+
+    row = cursor.fetchone()
+
+    connection.close()
+
+    if row is None:
+        return CURRENT_STRATEGY_VERSION
+
+    return row[0]
+
+def get_current_strategy_info():
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        SELECT
+            version,
+            name,
+            description
+        FROM strategy_versions
+        WHERE is_active = 1
+        ORDER BY id DESC
+        LIMIT 1
+    """)
+
+    row = cursor.fetchone()
+
+    connection.close()
+
+    if row is None:
+        return {
+            "version": CURRENT_STRATEGY_VERSION,
+            "name": CURRENT_STRATEGY_NAME,
+            "description": CURRENT_STRATEGY_DESCRIPTION,
+        }
+
+    return {
+        "version": row[0],
+        "name": row[1],
+        "description": row[2],
+    }
