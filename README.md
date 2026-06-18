@@ -105,7 +105,7 @@ A stock becomes a buy candidate when:
 * Current Price > MA5
 * MA5 > MA20
 * Total Score > 0
-* RSI < 70
+* RSI < active strategy rsi_limit
 * MACD > MACD Signal
 * Market is Bullish
 
@@ -133,7 +133,7 @@ Entry Conditions:
 
 * Current Price > MA5
 * MA5 > MA20
-* RSI < 70
+* RSI < active strategy rsi_limit
 * MACD > MACD Signal
 
 Exit Conditions:
@@ -202,6 +202,38 @@ When real trading is blocked:
 
 ⸻
 
+Recommendation Types
+
+Every recommendation is categorized.
+
+Current Types:
+
+* real
+* observation
+
+real
+
+Used when:
+
+* Real trading is allowed
+* Risk guard passes
+
+observation
+
+Used when:
+
+* Real trading is blocked
+* Observation mode is active
+
+Each recommendation type is stored in SQLite.
+
+This allows separate performance tracking for:
+
+* Real recommendations
+* Observation recommendations
+
+⸻
+
 Recommendation Database
 
 SQLite Database:
@@ -211,9 +243,10 @@ stock_bot.db
 Stores:
 
 * Recommendations
-* Observation Candidates
+* Recommendation Types
 * Performance Tracking
 * Recommendation Reasons
+* Strategy Versions
 * Market Conditions
 
 ⸻
@@ -241,6 +274,36 @@ Analyzes:
 * Average Return
 * Best Return
 * Worst Return
+
+⸻
+
+Recommendation Type Performance Analysis
+
+Performance is analyzed by recommendation type.
+
+Metrics:
+
+* Recommendation Count
+* Success Rate
+* Average Return
+* Best Return
+* Worst Return
+
+Example:
+
+[observation]
+
+* Recommendations: 50
+* Success Rate: 58%
+* Average Return: 1.8%
+
+[real]
+
+* Recommendations: 30
+* Success Rate: 67%
+* Average Return: 3.1%
+
+This helps determine whether observation recommendations should be promoted to real trading.
 
 ⸻
 
@@ -372,6 +435,108 @@ This allows the system to track how the strategy evolves before real trading is 
 
 ⸻
 
+Strategy Version Tracking
+
+Every recommendation stores the strategy version that generated it.
+
+Example:
+
+v1.0.0
+v1.1.0
+v1.2.0
+
+Stored Information:
+
+* Strategy Version
+* Recommendation Date
+* Recommendation Performance
+
+This allows historical comparison between strategy versions.
+
+The system can later determine:
+
+* Which strategy version performs best
+* Success rate by version
+* Average return by version
+* Evolution effectiveness
+
+Current Version:
+
+v1.1.0
+
+⸻
+
+Strategy Configuration
+
+Each active strategy version can use different parameter settings.
+
+Current Configurations:
+
+v1.0.0
+
+* RSI Limit: 70
+* ATR Penalty Threshold: 8
+* Factor Penalty: -4
+
+v1.1.0
+
+* RSI Limit: 65
+* ATR Penalty Threshold: 7
+* Factor Penalty: -5
+
+The system automatically loads the configuration from the currently active strategy version.
+
+This allows strategy behavior to change by version without manually rewriting core logic.
+
+⸻
+
+Strategy Version Performance Analysis
+
+Performance is analyzed separately for each strategy version.
+
+Metrics:
+
+* Recommendation Count
+* Success Rate
+* Average Return
+* Best Return
+* Worst Return
+
+Example:
+
+[v1.0.0]
+
+* Recommendations: 25
+* Success Rate: 64%
+* Average Return: 2.3%
+
+This allows objective evaluation of strategy upgrades.
+
+⸻
+
+Strategy Upgrade Workflow
+
+The system supports a manual strategy upgrade workflow.
+
+Workflow:
+
+1. Generate strategy improvement suggestions
+2. Save valid suggestions as strategy upgrade candidates
+3. Review pending candidates
+4. Approve reviewed candidates
+5. Create a new strategy version from an approved candidate
+6. Activate the new strategy version
+
+Candidate Status Flow:
+
+pending → reviewed → approved → version_created
+
+The system does not automatically apply new strategies without review and approval.
+
+This prevents weak or incomplete suggestions from changing the active strategy.
+
+⸻
+
 Email Reporting
 
 Two Email Modes:
@@ -399,8 +564,12 @@ Contains:
 
 * Top 3 observation candidates
 * Recommendation reasons
+* Strategy version information
+* Strategy version performance
+* Recommendation type performance
 * Strategy optimization suggestions
 * Risk warnings
+* Strategy upgrade candidates
 
 ⸻
 
@@ -423,9 +592,18 @@ Tables include:
 
 * recommendations
 * recommendation_performance
-* observation_candidates
-* email_logs
+* strategy_versions
 * strategy_evolution
+* strategy_upgrade_candidates
+* email_logs
+
+Key Recommendation Fields:
+
+* recommendation_reason
+* strategy_version
+* recommendation_type
+* market_name
+* market_bull
 
 ⸻
 
@@ -482,7 +660,7 @@ Future Improvements
 * Portfolio Rebalancing
 * Multi-Stock Portfolio Simulation
 * AI-Based Factor Discovery
-* Automated Strategy Adjustment
+* Automated Strategy Adjustment (After Sufficient Validation)
 * Real Trading API Integration
 * Web Dashboard
 * Mobile Dashboard
