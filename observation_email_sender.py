@@ -12,6 +12,7 @@ from strategy_upgrade_candidate_analyzer import get_strategy_upgrade_candidate_s
 from strategy_config import get_strategy_config_summary
 from strategy_version_comparison import get_strategy_version_comparison_summary
 from strategy_rollback_analyzer import get_strategy_rollback_analysis_summary
+from strategy_config_optimizer import get_strategy_config_optimization_summary
 
 
 load_dotenv()
@@ -91,6 +92,10 @@ def send_observation_email(best_stock, buy_candidates, market_result):
         get_strategy_rollback_analysis_summary()
     )
 
+    strategy_config_optimization = "\n".join(
+        get_strategy_config_optimization_summary()
+    )
+
     recommendation_type_performance = "\n".join(
         get_recommendation_type_performance_summary()
     )
@@ -134,6 +139,10 @@ MA20: {market_result['ma20']:,.2f}
 [전략 롤백 판단]
 
 {strategy_rollback_analysis}
+
+[전략 설정 자동 튜닝 제안]
+
+{strategy_config_optimization}
 
 [추천 유형별 성과]
 
