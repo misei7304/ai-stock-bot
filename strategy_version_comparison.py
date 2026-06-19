@@ -1,31 +1,80 @@
-from strategy_version_performance import (
-    get_strategy_version_performance_data
-)
+from database import get_connection
+from strategy_version import get_current_strategy_version
+from strategy_version_performance import get_strategy_version_performance_data
+
+
+def get_previous_strategy_version(current_version):
+    connection = get_connection()
+    cursor = connection.cursor()
+
+    cursor.execute("""
+        SELECT id
+        FROM strategy_versions
+        WHERE version = ?
+    """, (current_version,))
+
+    row = cursor.fetchone()
+
+    if row is None:
+        connection.close()
+        return None
+
+    current_id = row[0]
+
+    cursor.execute("""
+        SELECT version
+        FROM strategy_versions
+        WHERE id < ?
+        ORDER BY id DESC
+        LIMIT 1
+    """, (current_id,))
+
+    previous = cursor.fetchone()
+    connection.close()
+
+    if previous is None:
+        return None
+
+    return previous[0]
+
+
+def find_performance(version, performance_data):
+    for item in performance_data:
+        if item["version"] == version:
+            return item
+
+    return {
+        "version": version,
+        "recommendation_count": 0,
+        "success_rate": 0,
+        "average_return": 0,
+        "best_return": 0,
+        "worst_return": 0,
+    }
 
 
 def get_strategy_version_comparison_summary():
-    versions = get_strategy_version_performance_data()
+    performance_data = get_strategy_version_performance_data()
 
     summary = []
 
-    if len(versions) < 2:
-        summary.append("비교 가능한 전략 버전이 부족합니다.")
+    current_version_name = get_current_strategy_version()
+    previous_version_name = get_previous_strategy_version(current_version_name)
+
+    if previous_version_name is None:
+        summary.append("비교 가능한 이전 전략 버전이 없습니다.")
         return summary
 
-    current_version = versions[0]
-    previous_version = versions[1]
+    current_version = find_performance(current_version_name, performance_data)
+    previous_version = find_performance(previous_version_name, performance_data)
 
-    return_diff = (
-        current_version["average_return"]
-        - previous_version["average_return"]
-    )
+    return_diff = current_version["average_return"] - previous_version["average_return"]
 
     summary.append(f"현재 버전: {current_version['version']}")
     summary.append(f"비교 대상: {previous_version['version']}")
     summary.append(
         f"평균수익률 변화: "
-        f"{previous_version['average_return']:.2f}% "
-        f"→ "
+        f"{previous_version['average_return']:.2f}% → "
         f"{current_version['average_return']:.2f}%"
     )
     summary.append(f"개선폭: {return_diff:+.2f}%")

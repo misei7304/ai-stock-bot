@@ -1,19 +1,25 @@
-from strategy_version_performance import (
-    get_strategy_version_performance_data
+from strategy_version_comparison import (
+    get_previous_strategy_version,
+    find_performance,
 )
+from strategy_version import get_current_strategy_version
+from strategy_version_performance import get_strategy_version_performance_data
 
 
 def get_strategy_rollback_analysis_summary():
-    versions = get_strategy_version_performance_data()
+    performance_data = get_strategy_version_performance_data()
 
     summary = []
 
-    if len(versions) < 2:
-        summary.append("롤백 판단 불가: 비교 가능한 전략 버전이 부족합니다.")
+    current_version_name = get_current_strategy_version()
+    previous_version_name = get_previous_strategy_version(current_version_name)
+
+    if previous_version_name is None:
+        summary.append("롤백 판단 불가: 비교 가능한 이전 전략 버전이 없습니다.")
         return summary
 
-    current_version = versions[0]
-    previous_version = versions[1]
+    current_version = find_performance(current_version_name, performance_data)
+    previous_version = find_performance(previous_version_name, performance_data)
 
     total_count = (
         current_version["recommendation_count"]
