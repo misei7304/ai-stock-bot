@@ -66,6 +66,7 @@ from strategy_version_comparison import analyze_strategy_version_comparison
 from strategy_rollback_analyzer import analyze_strategy_rollback
 from strategy_candidate_reviewer import review_strategy_candidates
 from strategy_config_optimizer import analyze_strategy_config_optimization
+from no_candidate_email_sender import send_no_candidate_email
 
 
 initialize_database()
@@ -350,7 +351,11 @@ if len(affordable_candidates) == 0:
 
             mark_email_sent_today()
     else:
-        print("관찰용 이메일 발송 생략: 매수 후보가 없습니다.")
+        if was_email_sent_today():
+            print("오늘 이미 이메일을 발송했습니다. 이메일 발송 생략")
+        else:
+            send_no_candidate_email(market_result)
+            mark_email_sent_today()
 
 save_report(results)
 analyze_history()
