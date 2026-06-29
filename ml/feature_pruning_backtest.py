@@ -8,8 +8,8 @@ DATASET_PATH = "ml/training_dataset.csv"
 
 
 FEATURE_SETS = {
-    "all_features": FEATURES,
-    "top_15_features": [
+    "current_10_features": FEATURES,
+    "top_8_features": [
         "ATR_Percent",
         "MA60_Ratio",
         "MACD_Signal",
@@ -18,25 +18,14 @@ FEATURE_SETS = {
         "RSI",
         "High_Low_Range",
         "MA60",
-        "Momentum_5",
-        "Momentum_10",
-        "MACD_Histogram",
-        "MA5_Ratio",
-        "MA20_Ratio",
-        "Volume_Change",
-        "Bollinger_Upper",
     ],
-    "top_10_features": [
+    "top_6_features": [
         "ATR_Percent",
         "MA60_Ratio",
         "MACD_Signal",
         "MACD",
         "ATR",
         "RSI",
-        "High_Low_Range",
-        "MA60",
-        "Momentum_5",
-        "Momentum_10",
     ],
 }
 
