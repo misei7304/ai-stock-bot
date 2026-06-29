@@ -12,3 +12,6 @@ error.log
 .env
 
 .DS_Store
+*.pem
+ml/*.csv
+ml/*.pkl

@@ -12,6 +12,7 @@ from strategy_config_optimizer import get_strategy_config_optimization_summary
 from recommendation_type_performance import get_recommendation_type_performance_summary
 from strategy_upgrade_candidate_analyzer import get_strategy_upgrade_candidate_summary
 from strategy_optimizer import get_strategy_optimization_suggestions
+from ai_candidate_loader import load_ai_candidates
 
 
 load_dotenv()
@@ -24,11 +25,37 @@ TO_EMAIL = os.getenv("TO_EMAIL")
 def send_no_candidate_email(market_result):
     subject = "[AI Stock Bot] No Candidate Report"
 
+    ai_candidates = load_ai_candidates()
+
+    if len(ai_candidates) == 0:
+        ai_candidate_text = "AI 후보가 없습니다."
+    else:
+        ai_candidate_text = ""
+
+        rank = 1
+
+        for candidate in ai_candidates:
+            ai_candidate_text += (
+                f"{rank}위 | "
+                f"종목코드 {candidate['ticker']} | "
+                f"AI 상승확률 {candidate['ai_probability']:.2%} | "
+                f"기준일 {candidate['ai_date']} | "
+                f"기준가 {candidate['ai_close']:,.0f}원\n"
+            )
+            rank += 1
+
     body = f"""
 AI Stock Bot No Candidate Report
 
 오늘은 매수 후보가 없습니다.
 실제 매수도 하지 않습니다.
+
+[AI 모델 관찰 후보]
+
+{ai_candidate_text}
+
+주의: 위 AI 후보는 실제 매수 후보가 아닙니다.
+현재 시장 상태와 리스크 기준을 통과해야 실제 매수 검토가 가능합니다.
 
 [시장 상태]
 

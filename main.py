@@ -67,6 +67,9 @@ from strategy_rollback_analyzer import analyze_strategy_rollback
 from strategy_candidate_reviewer import review_strategy_candidates
 from strategy_config_optimizer import analyze_strategy_config_optimization
 from no_candidate_email_sender import send_no_candidate_email
+from ai_candidate_loader import load_ai_candidates
+from ai_candidate_loader import is_ai_candidate
+from ai_candidate_loader import get_ai_probability
 
 
 initialize_database()
@@ -81,6 +84,23 @@ for line in get_strategy_config_summary():
     print(line)
 
 market_result = analyze_market()
+
+ai_candidates = load_ai_candidates()
+
+print("\n" + "#" * 80)
+print("AI 모델 후보")
+print("#" * 80)
+
+if len(ai_candidates) == 0:
+    print("AI 후보가 없습니다.")
+else:
+    for candidate in ai_candidates:
+        print(
+            f"{candidate['ticker']} | "
+            f"AI 상승확률 {candidate['ai_probability']:.2%} | "
+            f"기준일 {candidate['ai_date']} | "
+            f"기준가 {candidate['ai_close']:,.0f}원"
+        )
 
 print("\n" + "#" * 80)
 print("시장 상황 분석")
@@ -130,6 +150,12 @@ for ticker, company_name in stocks:
     )
 
     result["final_score"] = final_score
+
+    result["is_ai_candidate"] = is_ai_candidate(ticker, ai_candidates)
+    result["ai_probability"] = get_ai_probability(ticker, ai_candidates)
+
+    if result["is_ai_candidate"]:
+        result["final_score"] += 20
 
     results.append(result)
 

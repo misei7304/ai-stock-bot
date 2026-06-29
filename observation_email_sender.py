@@ -34,6 +34,8 @@ def format_observation_stock(stock, market_result, rank):
 종목명: {stock['company_name']}
 종목코드: {stock['ticker']}
 현재가: {stock['current_price']:,.0f}원
+AI 후보 여부: {"예" if stock.get("is_ai_candidate") else "아니오"}
+AI 상승확률: {stock.get("ai_probability", 0):.2%}
 최종점수: {stock['final_score']:.2f}
 섹터: {stock['sector_name']}
 섹터 보너스: {stock['sector_bonus']}

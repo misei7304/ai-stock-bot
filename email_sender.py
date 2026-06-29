@@ -39,6 +39,8 @@ def send_email(best_stock, buy_candidates, market_result):
             f"{stock['company_name']} | "
             f"{stock['ticker']} | "
             f"현재가 {stock['current_price']:,.0f}원 | "
+            f"AI후보 {'예' if stock.get('is_ai_candidate') else '아니오'} | "
+            f"AI확률 {stock.get('ai_probability', 0):.2%} | "
             f"최종점수 {stock['final_score']:.2f} | "
             f"RSI {stock['rsi']:.2f} | "
             f"MACD {stock['macd']:.2f} | "
@@ -74,6 +76,8 @@ MA20: {market_result['ma20']:,.2f}
 종목코드: {best_stock['ticker']}
 현재가: {best_stock['current_price']:,.0f}원
 최종점수: {best_stock['final_score']:.2f}
+AI 후보 여부: {"예" if best_stock.get("is_ai_candidate") else "아니오"}
+AI 상승확률: {best_stock.get("ai_probability", 0):.2%}
 현재점수: {best_stock['total_score']:.2f}
 RSI: {best_stock['rsi']:.2f}
 MACD: {best_stock['macd']:.2f}
