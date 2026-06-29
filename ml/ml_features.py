@@ -2,28 +2,16 @@ import numpy as np
 
 
 FEATURES = [
-    "Return",
-    "MA5",
-    "MA20",
-    "MA60",
-    "Volume_Change",
-    "High_Low_Range",
-    "Open_Close_Range",
-    "MA5_Ratio",
-    "MA20_Ratio",
+    "ATR_Percent",
     "MA60_Ratio",
+    "MACD_Signal",
+    "MACD",
+    "ATR",
+    "RSI",
+    "High_Low_Range",
+    "MA60",
     "Momentum_5",
     "Momentum_10",
-    "RSI",
-    "MACD",
-    "MACD_Signal",
-    "MACD_Histogram",
-    "ATR",
-    "ATR_Percent",
-    "Bollinger_Upper",
-    "Bollinger_Middle",
-    "Bollinger_Lower",
-    "Bollinger_Position",
 ]
 
 
