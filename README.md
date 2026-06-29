@@ -747,4 +747,4 @@ Future Improvements
 * Automated Strategy Adjustment (After Sufficient Validation)
 * Real Trading API Integration
 * Web Dashboard
-* Mobile Dashboard
+* Mobile Dashboar
