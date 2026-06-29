@@ -4,6 +4,7 @@ import joblib
 
 from ml.ml_features import add_features, FEATURES
 from ml.ml_tickers import ML_TICKERS
+from ml.ml_config import AI_SIGNAL_THRESHOLD, TOP_AI_CANDIDATE_LIMIT
 
 pd.set_option("display.max_columns", None)
 pd.set_option("display.width", 200)
@@ -11,8 +12,6 @@ pd.set_option("display.width", 200)
 MODEL_PATH = "ml/trained_model.pkl"
 FINAL_CANDIDATES_PATH = "ml/final_candidates.csv"
 SCAN_RESULTS_PATH = "ml/scan_results.csv"
-
-AI_SIGNAL_THRESHOLD = 0.70
 
 model = joblib.load(MODEL_PATH)
 
@@ -69,8 +68,8 @@ else:
 
     print("\n=== 저장된 통합 모델 스캔 결과 ===")
     print(result_df)
-
-    passed_df = result_df[result_df["Signal"] == True].head(3)
+    
+    passed_df = result_df[result_df["Signal"] == True].head(TOP_AI_CANDIDATE_LIMIT)
 
     passed_df.to_csv(FINAL_CANDIDATES_PATH, index=False)
     result_df.to_csv(SCAN_RESULTS_PATH, index=False)
