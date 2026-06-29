@@ -10,7 +10,7 @@ from ml.ml_model import create_model
 
 df = pd.read_csv("ml/training_dataset.csv")
 
-X = df[FEATURES]
+X = df[FEATURES].fillna(0)
 y = df["Target"]
 
 X_train, X_test, y_train, y_test = train_test_split(
