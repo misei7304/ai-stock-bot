@@ -16,15 +16,25 @@ def initialize_ai_observation_table():
             ai_date TEXT,
             ai_close REAL,
             ai_probability REAL,
+            market_state TEXT,
             created_at TEXT
         )
     """)
+
+    try:
+        cursor.execute("""
+            ALTER TABLE ai_observations
+            ADD COLUMN market_state TEXT
+        """)
+
+    except sqlite3.OperationalError:
+        pass
 
     conn.commit()
     conn.close()
 
 
-def save_ai_observations(ai_candidates):
+def save_ai_observations(ai_candidates, market_result):
     initialize_ai_observation_table()
 
     conn = sqlite3.connect(DB_NAME)
@@ -32,6 +42,8 @@ def save_ai_observations(ai_candidates):
 
     saved_count = 0
     skipped_count = 0
+
+    market_state = "bull" if market_result["is_market_bull"] else "bear"
 
     for candidate in ai_candidates:
         ticker = candidate["ticker"]
@@ -56,14 +68,16 @@ def save_ai_observations(ai_candidates):
                 ai_date,
                 ai_close,
                 ai_probability,
+                market_state,
                 created_at
             )
-            VALUES (?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?)
         """, (
             ticker,
             ai_date,
             float(candidate["ai_close"]),
             float(candidate["ai_probability"]),
+            market_state,
             datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         ))
 

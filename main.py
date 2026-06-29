@@ -74,6 +74,7 @@ from ai_observation_database import save_ai_observations
 from ai_observation_performance import update_ai_observation_performance
 from ai_observation_analyzer import analyze_ai_observation_performance
 from ai_observation_signal_analyzer import analyze_ai_observation_signal_performance
+from ai_observation_market_analyzer import analyze_ai_observation_market_performance
 
 
 initialize_database()
@@ -106,7 +107,7 @@ else:
             f"기준가 {candidate['ai_close']:,.0f}원"
         )
 
-save_ai_observations(ai_candidates)
+save_ai_observations(ai_candidates, market_result)
 
 print("\n" + "#" * 80)
 print("시장 상황 분석")
@@ -408,6 +409,7 @@ update_recommendation_performance()
 update_ai_observation_performance()
 analyze_ai_observation_performance()
 analyze_ai_observation_signal_performance()
+analyze_ai_observation_market_performance()
 analyze_real_performance()
 analyze_market_performance()
 analyze_sector_real_performance()
