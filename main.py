@@ -70,6 +70,7 @@ from no_candidate_email_sender import send_no_candidate_email
 from ai_candidate_loader import load_ai_candidates
 from ai_candidate_loader import is_ai_candidate
 from ai_candidate_loader import get_ai_probability
+from ai_observation_database import save_ai_observations
 
 
 initialize_database()
@@ -101,6 +102,8 @@ else:
             f"기준일 {candidate['ai_date']} | "
             f"기준가 {candidate['ai_close']:,.0f}원"
         )
+
+save_ai_observations(ai_candidates)
 
 print("\n" + "#" * 80)
 print("시장 상황 분석")
