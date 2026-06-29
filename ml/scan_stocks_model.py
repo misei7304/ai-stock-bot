@@ -3,29 +3,17 @@ import pandas as pd
 import joblib
 
 from ml.ml_features import add_features, FEATURES
+from ml.ml_tickers import ML_TICKERS
 
 pd.set_option("display.max_columns", None)
 pd.set_option("display.width", 200)
 
 
-tickers = [
-    "005930.KS",  # 삼성전자
-    "000660.KS",  # SK하이닉스
-    "035420.KS",  # NAVER
-    "035720.KS",  # 카카오
-    "051910.KS",  # LG화학
-    "006400.KS",  # 삼성SDI
-    "005380.KS",  # 현대차
-    "000270.KS",  # 기아
-    "068270.KS",  # 셀트리온
-    "207940.KS",  # 삼성바이오로직스
-]
-
 model = joblib.load("ml/trained_model.pkl")
 
 results = []
 
-for ticker in tickers:
+for ticker in ML_TICKERS:
     try:
         df = yf.download(ticker, period="5y", progress=False)
 
