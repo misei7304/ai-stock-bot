@@ -73,6 +73,7 @@ from ai_candidate_loader import get_ai_probability
 from ai_observation_database import save_ai_observations
 from ai_observation_performance import update_ai_observation_performance
 from ai_observation_analyzer import analyze_ai_observation_performance
+from ai_observation_signal_analyzer import analyze_ai_observation_signal_performance
 
 
 initialize_database()
@@ -406,6 +407,7 @@ analyze_database_recommendations()
 update_recommendation_performance()
 update_ai_observation_performance()
 analyze_ai_observation_performance()
+analyze_ai_observation_signal_performance()
 analyze_real_performance()
 analyze_market_performance()
 analyze_sector_real_performance()
