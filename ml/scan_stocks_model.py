@@ -8,8 +8,13 @@ from ml.ml_tickers import ML_TICKERS
 pd.set_option("display.max_columns", None)
 pd.set_option("display.width", 200)
 
+MODEL_PATH = "ml/trained_model.pkl"
+FINAL_CANDIDATES_PATH = "ml/final_candidates.csv"
+SCAN_RESULTS_PATH = "ml/scan_results.csv"
 
-model = joblib.load("ml/trained_model.pkl")
+AI_SIGNAL_THRESHOLD = 0.70
+
+model = joblib.load(MODEL_PATH)
 
 results = []
 
@@ -32,7 +37,7 @@ for ticker in ML_TICKERS:
             print(f"{ticker}: 최신 feature 데이터 없음")
             continue
 
-        latest = latest_features_df[FEATURES].tail(1)
+        latest = latest_features_df[FEATURES].tail(1).fillna(0)
         latest_date = latest.index[0]
         latest_close = latest_features_df.loc[latest_date, "Close"]
 
@@ -43,7 +48,7 @@ for ticker in ML_TICKERS:
             "Date": latest_date.date(),
             "Close": latest_close,
             "Probability": probability,
-            "Signal": probability >= 0.60,
+            "Signal": probability >= AI_SIGNAL_THRESHOLD,
         })
 
         print(f"{ticker}: 상승확률 {probability:.2%}")
@@ -67,8 +72,9 @@ else:
 
     passed_df = result_df[result_df["Signal"] == True].head(3)
 
-    passed_df.to_csv("ml/final_candidates.csv", index=False)
-    result_df.to_csv("ml/scan_results.csv", index=False)
+    passed_df.to_csv(FINAL_CANDIDATES_PATH, index=False)
+    result_df.to_csv(SCAN_RESULTS_PATH, index=False)
 
-    print("\n최종 후보 저장 완료: ml/final_candidates.csv")
-    print("전체 결과 저장 완료: ml/scan_results.csv")
+    print(f"\nAI 신호 기준값: {AI_SIGNAL_THRESHOLD:.2f}")
+    print(f"최종 후보 저장 완료: {FINAL_CANDIDATES_PATH}")
+    print(f"전체 결과 저장 완료: {SCAN_RESULTS_PATH}")
