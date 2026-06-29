@@ -154,8 +154,11 @@ for ticker, company_name in stocks:
     result["is_ai_candidate"] = is_ai_candidate(ticker, ai_candidates)
     result["ai_probability"] = get_ai_probability(ticker, ai_candidates)
 
+    result["ai_bonus"] = 0
+
     if result["is_ai_candidate"]:
-        result["final_score"] += 20
+        result["ai_bonus"] = result["ai_probability"] * 30
+        result["final_score"] += result["ai_bonus"]
 
     results.append(result)
 
@@ -213,6 +216,9 @@ else:
             f"종목코드 {stock['ticker']} | "
             f"현재가 {stock['current_price']:,.0f}원 | "
             f"최종점수 {stock['final_score']:.2f} | "
+            f"AI후보 {'예' if stock.get('is_ai_candidate') else '아니오'} | "
+            f"AI확률 {stock.get('ai_probability', 0):.2%} | "
+            f"AI보너스 {stock.get('ai_bonus', 0):.2f} | "
             f"섹터 {stock['sector_name']} | "
             f"섹터보너스 {stock['sector_bonus']} | "
             f"적응보너스 {stock['adaptive_bonus']} | "
@@ -293,6 +299,9 @@ else:
     print(f"종목코드: {best_stock['ticker']}")
     print(f"현재가: {best_stock['current_price']:,.0f}원")
     print(f"최종점수: {best_stock['final_score']:.2f}")
+    print(f"AI 후보 여부: {'예' if best_stock.get('is_ai_candidate') else '아니오'}")
+    print(f"AI 상승확률: {best_stock.get('ai_probability', 0):.2%}")
+    print(f"AI 보너스: {best_stock.get('ai_bonus', 0):.2f}")
     print(f"섹터: {best_stock['sector_name']}")
     print(f"섹터 보너스: {best_stock['sector_bonus']}")
     print(f"적응 보너스: {best_stock['adaptive_bonus']}")
