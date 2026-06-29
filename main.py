@@ -75,6 +75,7 @@ from ai_observation_performance import update_ai_observation_performance
 from ai_observation_analyzer import analyze_ai_observation_performance
 from ai_observation_signal_analyzer import analyze_ai_observation_signal_performance
 from ai_observation_market_analyzer import analyze_ai_observation_market_performance
+from ai_observation_score_analyzer import analyze_ai_observation_score
 
 
 initialize_database()
@@ -410,6 +411,7 @@ update_ai_observation_performance()
 analyze_ai_observation_performance()
 analyze_ai_observation_signal_performance()
 analyze_ai_observation_market_performance()
+analyze_ai_observation_score()
 analyze_real_performance()
 analyze_market_performance()
 analyze_sector_real_performance()
