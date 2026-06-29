@@ -71,6 +71,7 @@ from ai_candidate_loader import load_ai_candidates
 from ai_candidate_loader import is_ai_candidate
 from ai_candidate_loader import get_ai_probability
 from ai_observation_database import save_ai_observations
+from ai_observation_performance import update_ai_observation_performance
 
 
 initialize_database()
@@ -402,6 +403,7 @@ print_sector_performance(results)
 analyze_strategy_performance()
 analyze_database_recommendations()
 update_recommendation_performance()
+update_ai_observation_performance()
 analyze_real_performance()
 analyze_market_performance()
 analyze_sector_real_performance()

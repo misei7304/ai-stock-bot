@@ -30,7 +30,26 @@ def save_ai_observations(ai_candidates):
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
 
+    saved_count = 0
+    skipped_count = 0
+
     for candidate in ai_candidates:
+        ticker = candidate["ticker"]
+        ai_date = str(candidate["ai_date"])
+
+        cursor.execute("""
+            SELECT COUNT(*)
+            FROM ai_observations
+            WHERE ticker = ?
+            AND ai_date = ?
+        """, (ticker, ai_date))
+
+        exists = cursor.fetchone()[0]
+
+        if exists > 0:
+            skipped_count += 1
+            continue
+
         cursor.execute("""
             INSERT INTO ai_observations (
                 ticker,
@@ -41,14 +60,16 @@ def save_ai_observations(ai_candidates):
             )
             VALUES (?, ?, ?, ?, ?)
         """, (
-            candidate["ticker"],
-            str(candidate["ai_date"]),
+            ticker,
+            ai_date,
             float(candidate["ai_close"]),
             float(candidate["ai_probability"]),
             datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         ))
 
+        saved_count += 1
+
     conn.commit()
     conn.close()
 
-    print("AI 후보 DB 저장 완료")
+    print(f"AI 후보 DB 저장 완료: 신규 {saved_count}개, 중복 생략 {skipped_count}개")
