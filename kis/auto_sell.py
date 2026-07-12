@@ -241,13 +241,23 @@ def execute_auto_sell(holding_result):
         statuses=(
             "dry_run",
             "submitted",
+            "partial",
+            "unfilled",
+            "filled",
         ),
     ):
-        raise RuntimeError(
-            "오늘 이미 동일 종목의 자동매도 기록이 있습니다.\n"
-            f"종목코드: {request_data['stock_code']}\n"
-            "중복 자동매도를 차단했습니다."
-        )
+        result = {
+            "status": "duplicate_blocked",
+            **request_data,
+            "message": (
+                "오늘 이미 동일 종목의 자동매도 기록이 있어 "
+                "중복 자동매도를 차단했습니다."
+            ),
+        }
+
+        save_sell_log(result)
+
+        return result
 
     if not AUTO_SELL_ENABLED:
         result = {
@@ -298,8 +308,19 @@ def execute_auto_sell(holding_result):
         save_sell_trade_to_database(result)
         return result
 
-    except Exception:
-        raise
+    except Exception as error:
+        failed_result = {
+            "status": "failed",
+            **request_data,
+            "error": str(error),
+        }
+
+        save_sell_log(failed_result)
+        save_sell_trade_to_database(
+            failed_result
+        )
+
+        return failed_result
 
 
 def monitor_and_sell_holdings(
@@ -384,6 +405,27 @@ def print_auto_sell_results(results):
             print(
                 f"오류: {result.get('error')}"
             )
+            continue
+
+        if result.get("status") == "duplicate_blocked":
+            print(
+                f"보유수량: "
+                f"{result.get('quantity', 0)}주"
+            )
+
+            print(
+                f"현재가: "
+                f"{result.get('current_price', 0):,.0f}원"
+            )
+
+            print(
+                f"판단 이유: "
+                f"{result.get('reason')}"
+            )
+
+            if result.get("message"):
+                print(result["message"])
+
             continue
 
         print(
