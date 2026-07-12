@@ -4,13 +4,6 @@ from market_data.sector import (
 from performance import (
     analyze_recommendation_performance,
 )
-from performance_analysis.factor_performance import (
-    analyze_atr_performance,
-    analyze_bollinger_performance,
-    analyze_final_score_performance,
-    analyze_macd_performance,
-    analyze_rsi_performance,
-)
 from performance_analysis.history_analyzer import (
     analyze_history,
 )
@@ -67,6 +60,9 @@ from strategy_management.upgrade_candidate import (
 from services.ai_performance_service import (
     run_ai_performance_analysis,
 )
+from services.factor_performance_service import (
+    run_factor_performance_analysis,
+)
 from services.real_performance_service import (
     run_real_performance_analysis,
 )
@@ -87,11 +83,7 @@ def run_performance_analysis(results):
 
     run_real_performance_analysis()
 
-    analyze_rsi_performance()
-    analyze_macd_performance()
-    analyze_atr_performance()
-    analyze_bollinger_performance()
-    analyze_final_score_performance()
+    run_factor_performance_analysis()
 
     analyze_strategy_config_optimization()
     analyze_score_adjustments()
