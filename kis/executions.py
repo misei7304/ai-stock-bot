@@ -1,3 +1,4 @@
+import time
 from datetime import datetime
 
 import requests
@@ -17,6 +18,8 @@ def get_order_executions(
     end_date=None,
     stock_code="",
     execution_filter="00",
+    max_retries=3,
+    retry_delay=1.0,
 ):
     """
     국내주식 일별 주문·체결 내역 조회
@@ -68,68 +71,131 @@ def get_order_executions(
         "CTX_AREA_NK100": "",
     }
 
-    try:
-        response = requests.get(
-            url,
-            headers=headers,
-            params=params,
-            timeout=15,
-        )
+    last_error = None
 
-        response.raise_for_status()
+    for attempt in range(1, max_retries + 1):
+        try:
+            response = requests.get(
+                url,
+                headers=headers,
+                params=params,
+                timeout=15,
+            )
 
-    except requests.RequestException as error:
-        response_text = ""
+            data = response.json()
 
-        if getattr(error, "response", None) is not None:
-            response_text = error.response.text
+            if data.get("msg_cd") == "EGW00201":
+                if attempt < max_retries:
+                    wait_seconds = retry_delay * attempt
 
-        raise RuntimeError(
-            "KIS 주문·체결 내역 조회 실패\n"
-            f"오류: {error}\n"
-            f"응답: {response_text}"
-        ) from error
+                    print(
+                        "KIS 주문·체결 조회 호출 제한 발생: "
+                        f"{wait_seconds:.1f}초 후 재시도 "
+                        f"({attempt}/{max_retries})"
+                    )
 
-    data = response.json()
+                    time.sleep(wait_seconds)
+                    continue
 
-    if data.get("rt_cd") != "0":
-        raise RuntimeError(
-            "KIS 주문·체결 조회 응답 오류\n"
-            f"메시지 코드: {data.get('msg_cd')}\n"
-            f"메시지: {data.get('msg1')}\n"
-            f"전체 응답: {data}"
-        )
+                raise RuntimeError(
+                    "KIS 주문·체결 조회 호출 제한이 계속 발생했습니다.\n"
+                    f"종목코드: {stock_code or '전체'}\n"
+                    f"메시지: {data.get('msg1')}"
+                )
 
-    rows = []
+            response.raise_for_status()
 
-    for item in data.get("output1", []):
-        order_quantity = int(item.get("ord_qty") or 0)
-        executed_quantity = int(item.get("tot_ccld_qty") or 0)
-        remaining_quantity = int(item.get("rmn_qty") or 0)
+            if data.get("rt_cd") != "0":
+                raise RuntimeError(
+                    "KIS 주문·체결 조회 응답 오류\n"
+                    f"메시지 코드: {data.get('msg_cd')}\n"
+                    f"메시지: {data.get('msg1')}\n"
+                    f"전체 응답: {data}"
+                )
 
-        rows.append({
-            "order_date": item.get("ord_dt"),
-            "order_time": item.get("ord_tmd"),
-            "order_number": item.get("odno"),
-            "stock_code": item.get("pdno"),
-            "stock_name": item.get("prdt_name"),
-            "side": item.get("sll_buy_dvsn_cd_name"),
-            "order_type": item.get("ord_dvsn_name"),
-            "order_quantity": order_quantity,
-            "order_price": int(item.get("ord_unpr") or 0),
-            "executed_quantity": executed_quantity,
-            "executed_price": int(
-                float(item.get("avg_prvs") or 0)
-            ),
-            "remaining_quantity": remaining_quantity,
-            "is_fully_executed": (
-                order_quantity > 0
-                and remaining_quantity == 0
-                and executed_quantity == order_quantity
-            ),
-        })
+            rows = []
 
-    return rows
+            for item in data.get("output1", []):
+                order_quantity = int(
+                    item.get("ord_qty") or 0
+                )
+                executed_quantity = int(
+                    item.get("tot_ccld_qty") or 0
+                )
+                remaining_quantity = int(
+                    item.get("rmn_qty") or 0
+                )
+
+                rows.append({
+                    "order_date": item.get("ord_dt"),
+                    "order_time": item.get("ord_tmd"),
+                    "order_number": item.get("odno"),
+                    "stock_code": item.get("pdno"),
+                    "stock_name": item.get("prdt_name"),
+                    "side": item.get(
+                        "sll_buy_dvsn_cd_name"
+                    ),
+                    "order_type": item.get(
+                        "ord_dvsn_name"
+                    ),
+                    "order_quantity": order_quantity,
+                    "order_price": int(
+                        item.get("ord_unpr") or 0
+                    ),
+                    "executed_quantity": (
+                        executed_quantity
+                    ),
+                    "executed_price": int(
+                        float(item.get("avg_prvs") or 0)
+                    ),
+                    "remaining_quantity": (
+                        remaining_quantity
+                    ),
+                    "is_fully_executed": (
+                        order_quantity > 0
+                        and remaining_quantity == 0
+                        and executed_quantity
+                        == order_quantity
+                    ),
+                })
+
+            return rows
+
+        except requests.RequestException as error:
+            last_error = error
+
+            if attempt < max_retries:
+                wait_seconds = retry_delay * attempt
+                time.sleep(wait_seconds)
+                continue
+
+            response_text = ""
+
+            if getattr(error, "response", None) is not None:
+                response_text = error.response.text
+
+            raise RuntimeError(
+                "KIS 주문·체결 내역 조회 실패\n"
+                f"오류: {error}\n"
+                f"응답: {response_text}"
+            ) from error
+
+        except ValueError as error:
+            last_error = error
+
+            if attempt < max_retries:
+                time.sleep(retry_delay * attempt)
+                continue
+
+            raise RuntimeError(
+                "KIS 주문·체결 응답을 JSON으로 "
+                "해석하지 못했습니다."
+            ) from error
+
+    raise RuntimeError(
+        "KIS 주문·체결 조회에 실패했습니다.\n"
+        f"마지막 오류: {last_error}"
+    )
 
 
 def print_order_executions(rows):

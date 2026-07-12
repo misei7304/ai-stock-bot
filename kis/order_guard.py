@@ -1,3 +1,4 @@
+import time
 from kis.balance import get_balance
 from kis.executions import get_order_executions
 from kis.price import get_stock_price
@@ -49,11 +50,15 @@ def validate_buy_order(
             f"종목코드: {stock_code}\n"
             f"보유수량: {holding_quantity}주"
         )
+    
+    time.sleep(1.0)
 
     if has_pending_buy_order(stock_code):
         raise RuntimeError(
             f"{stock_code} 종목에 미체결 매수 주문이 이미 있습니다."
         )
+    
+    time.sleep(1.0)
 
     stock = get_stock_price(stock_code)
     current_price = stock["price"]
