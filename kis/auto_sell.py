@@ -8,7 +8,10 @@ from dotenv import load_dotenv
 from kis.balance import get_balance
 from kis.price import get_stock_price
 from kis.safe_order import safe_sell_market_order
-from storage.kis_trade_database import save_kis_trade
+from storage.kis_trade_database import (
+    has_kis_trade_today,
+    save_kis_trade,
+)
 
 
 load_dotenv()
@@ -251,10 +254,30 @@ def execute_auto_sell(holding_result):
         "return_rate": holding_result[
             "return_rate"
         ],
+        "stop_loss_price": holding_result.get(
+            "stop_loss_price"
+        ),
+        "take_profit_price": holding_result.get(
+            "take_profit_price"
+        ),
         "reason": holding_result[
             "reason"
         ],
     }
+
+    if has_kis_trade_today(
+        trade_type="sell",
+        stock_code=request_data["stock_code"],
+        statuses=(
+            "dry_run",
+            "submitted",
+        ),
+    ):
+        raise RuntimeError(
+            "오늘 이미 동일 종목의 자동매도 기록이 있습니다.\n"
+            f"종목코드: {request_data['stock_code']}\n"
+            "중복 자동매도를 차단했습니다."
+        )
 
     if not AUTO_SELL_ENABLED:
         result = {
