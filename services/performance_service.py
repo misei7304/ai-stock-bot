@@ -1,23 +1,8 @@
-from ai_observation_performance import (
-    update_ai_observation_performance,
-)
 from market_data.sector import (
     print_sector_performance,
 )
 from performance import (
     analyze_recommendation_performance,
-)
-from performance_analysis.ai_observation_analyzer import (
-    analyze_ai_observation_performance,
-)
-from performance_analysis.ai_observation_market_analyzer import (
-    analyze_ai_observation_market_performance,
-)
-from performance_analysis.ai_observation_score_analyzer import (
-    analyze_ai_observation_score,
-)
-from performance_analysis.ai_observation_signal_analyzer import (
-    analyze_ai_observation_signal_performance,
 )
 from performance_analysis.factor_performance import (
     analyze_atr_performance,
@@ -100,6 +85,10 @@ from strategy_management.upgrade_candidate import (
     save_strategy_upgrade_candidate,
 )
 
+from services.ai_performance_service import (
+    run_ai_performance_analysis,
+)
+
 
 def run_performance_analysis(results):
     save_report(results)
@@ -111,12 +100,8 @@ def run_performance_analysis(results):
     analyze_database_recommendations()
 
     update_recommendation_performance()
-    update_ai_observation_performance()
 
-    analyze_ai_observation_performance()
-    analyze_ai_observation_signal_performance()
-    analyze_ai_observation_market_performance()
-    analyze_ai_observation_score()
+    run_ai_performance_analysis()
 
     analyze_real_performance()
     analyze_market_performance()
