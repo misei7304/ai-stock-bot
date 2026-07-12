@@ -73,22 +73,30 @@ def get_sector_name(company_name):
     return sector_map.get(company_name, "기타")
 
 
+MIN_SECTOR_STOCK_COUNT_FOR_BONUS = 2
+
+
 def calculate_sector_bonus(sector_name, sector_ranking):
+    eligible_sectors = [
+        sector
+        for sector in sector_ranking
+        if sector["count"] >= MIN_SECTOR_STOCK_COUNT_FOR_BONUS
+    ]
 
-    for index, sector in enumerate(sector_ranking):
+    for index, sector in enumerate(eligible_sectors):
+        if sector["sector_name"] != sector_name:
+            continue
 
-        if sector["sector_name"] == sector_name:
+        if index == 0:
+            return 5
 
-            if index == 0:
-                return 5
+        if index == 1:
+            return 3
 
-            if index == 1:
-                return 3
+        if index == 2:
+            return 2
 
-            if index == 2:
-                return 2
-
-            return 0
+        return 0
 
     return 0
 
