@@ -5,7 +5,6 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-from kis.balance import get_balance
 from kis.price import get_stock_price
 from kis.safe_order import safe_sell_market_order
 from storage.kis_trade_database import (
@@ -40,13 +39,6 @@ KIS_TAKE_PROFIT_RATE = float(
 )
 
 SELL_LOG_PATH = Path("logs/kis_sell_log.jsonl")
-
-
-def parse_int(value):
-    try:
-        return int(float(value or 0))
-    except (TypeError, ValueError):
-        return 0
 
 
 def parse_float(value):
@@ -119,43 +111,6 @@ def save_sell_trade_to_database(result):
         error=result.get("error"),
     )
 
-def get_holdings():
-    result = get_balance()
-    holdings = []
-
-    for stock in result.get("output1", []):
-        stock_code = str(
-            stock.get("pdno") or ""
-        ).strip()
-
-        quantity = parse_int(
-            stock.get("hldg_qty")
-        )
-
-        if not stock_code or quantity <= 0:
-            continue
-
-        average_price = parse_float(
-            stock.get("pchs_avg_pric")
-        )
-
-        holdings.append({
-            "stock_code": stock_code,
-            "stock_name": stock.get(
-                "prdt_name"
-            ),
-            "quantity": quantity,
-            "average_price": average_price,
-            "balance_current_price": parse_float(
-                stock.get("prpr")
-            ),
-            "evaluation_profit_loss": parse_float(
-                stock.get("evlu_pfls_amt")
-            ),
-        })
-
-    return holdings
-
 
 def calculate_sell_signal(
     average_price,
@@ -213,16 +168,31 @@ def calculate_sell_signal(
 def evaluate_holding(holding):
     stock_code = holding["stock_code"]
 
-    stock_price = get_stock_price(stock_code)
-    current_price = stock_price["price"]
+    current_price = parse_float(
+        holding.get("current_price")
+    )
+
+    if current_price <= 0:
+        stock_price = get_stock_price(
+            stock_code
+        )
+
+        current_price = parse_float(
+            stock_price.get("price")
+        )
+
+    average_price = parse_float(
+        holding.get("average_buy_price")
+    )
 
     signal = calculate_sell_signal(
-        average_price=holding["average_price"],
+        average_price=average_price,
         current_price=current_price,
     )
 
     return {
         **holding,
+        "average_price": average_price,
         **signal,
     }
 
@@ -332,8 +302,12 @@ def execute_auto_sell(holding_result):
         raise
 
 
-def monitor_and_sell_holdings():
-    holdings = get_holdings()
+def monitor_and_sell_holdings(
+    holdings=None,
+):
+    if holdings is None:
+        holdings = []
+
     results = []
 
     if not holdings:
@@ -367,11 +341,19 @@ def monitor_and_sell_holdings():
                 "quantity": holding.get(
                     "quantity"
                 ),
+                "average_price": holding.get(
+                    "average_buy_price"
+                ),
+                "current_price": holding.get(
+                    "current_price"
+                ),
                 "error": str(error),
             }
 
             save_sell_log(failed_result)
-            save_sell_trade_to_database(failed_result)
+            save_sell_trade_to_database(
+                failed_result
+            )
             results.append(failed_result)
 
     return results
@@ -462,5 +444,7 @@ if __name__ == "__main__":
         f"{KIS_TAKE_PROFIT_RATE:.2%}"
     )
 
-    results = monitor_and_sell_holdings()
-    print_auto_sell_results(results)
+    print(
+        "\n이 모듈은 동기화된 보유 종목 목록을 "
+        "monitor_and_sell_holdings()에 전달해야 합니다."
+    )
