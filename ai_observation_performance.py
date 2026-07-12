@@ -1,109 +1,136 @@
-import sqlite3
-import yfinance as yf
 import pandas as pd
+import yfinance as yf
+
+from storage.ai_observation_performance_database import (
+    ensure_ai_performance_columns,
+    get_ai_observations,
+    update_ai_observation_returns,
+)
 
 
-DB_NAME = "stock_bot.db"
+def normalize_stock_data(data):
+    if isinstance(data.columns, pd.MultiIndex):
+        data.columns = data.columns.get_level_values(0)
+
+    return data.dropna()
+
+
+def calculate_return(
+    target_close,
+    base_close,
+):
+    return (
+        (target_close / base_close) - 1
+    ) * 100
+
+
+def calculate_period_returns(
+    data,
+    base_index,
+    ai_close,
+):
+    period_returns = {
+        "return_1d": None,
+        "return_5d": None,
+        "return_20d": None,
+    }
+
+    periods = {
+        "return_1d": 1,
+        "return_5d": 5,
+        "return_20d": 20,
+    }
+
+    for return_name, period in periods.items():
+        target_index = base_index + period
+
+        if target_index >= len(data):
+            continue
+
+        target_close = float(
+            data["Close"].iloc[target_index]
+        )
+
+        period_returns[return_name] = (
+            calculate_return(
+                target_close,
+                ai_close,
+            )
+        )
+
+    return period_returns
+
+
+def update_single_ai_observation(
+    observation,
+):
+    observation_id = observation["id"]
+    ticker = observation["ticker"]
+    ai_date = observation["ai_date"]
+    ai_close = observation["ai_close"]
+
+    data = yf.download(
+        ticker,
+        period="2mo",
+        progress=False,
+    )
+
+    if data.empty:
+        return False
+
+    data = normalize_stock_data(data)
+
+    date_list = list(
+        data.index.strftime("%Y-%m-%d")
+    )
+
+    if ai_date not in date_list:
+        return False
+
+    base_index = date_list.index(ai_date)
+
+    current_close = float(
+        data["Close"].iloc[-1]
+    )
+
+    current_return = calculate_return(
+        current_close,
+        ai_close,
+    )
+
+    period_returns = calculate_period_returns(
+        data=data,
+        base_index=base_index,
+        ai_close=ai_close,
+    )
+
+    update_ai_observation_returns(
+        observation_id=observation_id,
+        current_close=current_close,
+        current_return=current_return,
+        return_1d=period_returns["return_1d"],
+        return_5d=period_returns["return_5d"],
+        return_20d=period_returns["return_20d"],
+    )
+
+    print(
+        f"{ai_date} | {ticker} | "
+        f"AI추천가 {ai_close:,.0f}원 | "
+        f"현재가 {current_close:,.0f}원 | "
+        f"현재수익률 {current_return:.2f}%"
+    )
+
+    return True
 
 
 def update_ai_observation_performance():
-    conn = sqlite3.connect(DB_NAME)
-    cursor = conn.cursor()
+    ensure_ai_performance_columns()
 
-    cursor.execute("""
-        ALTER TABLE ai_observations
-        ADD COLUMN current_close REAL
-    """) if False else None
+    observations = get_ai_observations()
 
-    columns_to_add = [
-        ("current_close", "REAL"),
-        ("current_return", "REAL"),
-        ("return_1d", "REAL"),
-        ("return_5d", "REAL"),
-        ("return_20d", "REAL"),
-    ]
-
-    for column_name, column_type in columns_to_add:
-        try:
-            cursor.execute(f"""
-                ALTER TABLE ai_observations
-                ADD COLUMN {column_name} {column_type}
-            """)
-        except sqlite3.OperationalError:
-            pass
-
-    cursor.execute("""
-        SELECT id, ticker, ai_date, ai_close
-        FROM ai_observations
-        ORDER BY id DESC
-    """)
-
-    rows = cursor.fetchall()
-
-    for row in rows:
-        obs_id, ticker, ai_date, ai_close = row
-
-        df = yf.download(ticker, period="2mo", progress=False)
-
-        if df.empty:
-            continue
-
-        if isinstance(df.columns, pd.MultiIndex):
-            df.columns = df.columns.get_level_values(0)
-
-        df = df.dropna()
-
-        if ai_date not in df.index.strftime("%Y-%m-%d").tolist():
-            continue
-
-        date_list = list(df.index.strftime("%Y-%m-%d"))
-        base_index = date_list.index(ai_date)
-
-        current_close = float(df["Close"].iloc[-1])
-        current_return = (current_close / ai_close - 1) * 100
-
-        return_1d = None
-        return_5d = None
-        return_20d = None
-
-        if base_index + 1 < len(df):
-            close_1d = float(df["Close"].iloc[base_index + 1])
-            return_1d = (close_1d / ai_close - 1) * 100
-
-        if base_index + 5 < len(df):
-            close_5d = float(df["Close"].iloc[base_index + 5])
-            return_5d = (close_5d / ai_close - 1) * 100
-
-        if base_index + 20 < len(df):
-            close_20d = float(df["Close"].iloc[base_index + 20])
-            return_20d = (close_20d / ai_close - 1) * 100
-
-        cursor.execute("""
-            UPDATE ai_observations
-            SET
-                current_close = ?,
-                current_return = ?,
-                return_1d = ?,
-                return_5d = ?,
-                return_20d = ?
-            WHERE id = ?
-        """, (
-            current_close,
-            current_return,
-            return_1d,
-            return_5d,
-            return_20d,
-            obs_id
-        ))
-
-        print(
-            f"{ai_date} | {ticker} | "
-            f"AI추천가 {ai_close:,.0f}원 | "
-            f"현재가 {current_close:,.0f}원 | "
-            f"현재수익률 {current_return:.2f}%"
+    for observation in observations:
+        update_single_ai_observation(
+            observation
         )
-
-    conn.commit()
-    conn.close()
 
     print("AI 후보 수익률 업데이트 완료")
