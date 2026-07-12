@@ -1,7 +1,7 @@
 import pandas as pd
 
-from data import get_stock_data
-from data import calculate_indicators
+from market_data.data import get_stock_data
+from market_data.data import calculate_indicators
 
 from strategies.stock_strategy import analyze_stock
 
@@ -9,7 +9,7 @@ from backtest import backtest
 from backtest import analyze_backtest
 from backtest import simulate_account
 
-from stocks import stocks
+from market_data.stocks import stocks
 from report import save_report
 from history import save_history
 from performance_analysis.history_analyzer import analyze_history
@@ -17,13 +17,13 @@ from performance import analyze_recommendation_performance
 from notifications.email_sender import send_email
 from performance_analysis.strategy_performance import analyze_strategy_performance
 from trading.risk_manager import calculate_position
-from market import analyze_market
+from market_data.market import analyze_market
 from storage.database import initialize_database
 from storage.database import save_recommendation_to_database
-from sector import print_sector_performance
-from sector import analyze_sector_performance
-from sector import get_sector_name
-from sector import calculate_sector_bonus
+from market_data.sector import print_sector_performance
+from market_data.sector import analyze_sector_performance
+from market_data.sector import get_sector_name
+from market_data.sector import calculate_sector_bonus
 from storage.database_analyzer import analyze_database_recommendations
 from storage.performance_db import update_recommendation_performance
 from performance_analysis.real_performance import analyze_real_performance

@@ -2,7 +2,7 @@ import csv
 import os
 import pandas as pd
 
-from data import get_stock_data
+from market_data.data import get_stock_data
 
 
 def calculate_return(target_price, recommended_price):
