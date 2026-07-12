@@ -86,6 +86,12 @@ def execute_candidate_auto_buy(
         ai_probability=float(ai_probability),
         market_is_bull=bool(market_is_bull),
         risk_allowed=bool(risk_allowed),
+        current_price=quantity_info[
+            "current_price"
+        ],
+        estimated_amount=quantity_info[
+            "estimated_amount"
+        ],
     )
 
     return {
