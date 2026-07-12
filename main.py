@@ -1,7 +1,9 @@
 import pandas as pd
 
-from market_data.data import get_stock_data
+from services.startup_service import run_startup_tasks
+
 from market_data.data import calculate_indicators
+from market_data.data import get_stock_data
 
 from strategies.stock_strategy import analyze_stock
 
@@ -18,7 +20,6 @@ from notifications.email_sender import send_email
 from performance_analysis.strategy_performance import analyze_strategy_performance
 from trading.risk_manager import calculate_position
 from market_data.market import analyze_market
-from storage.database import initialize_database
 from storage.database import save_recommendation_to_database
 from market_data.sector import print_sector_performance
 from market_data.sector import analyze_sector_performance
@@ -54,13 +55,11 @@ from storage.observation_database import save_observation_candidate
 from performance_analysis.strategy_optimizer import analyze_strategy_optimization_suggestions
 from strategy_management.evolution import save_strategy_evolution
 from performance_analysis.strategy_evolution_analyzer import analyze_strategy_evolution_history
-from strategy_management.version import initialize_strategy_version
 from performance_analysis.strategy_version_performance import analyze_strategy_version_performance
 from performance_analysis.recommendation_type_performance import analyze_recommendation_type_performance
 from strategy_management.upgrade_candidate import save_strategy_upgrade_candidate
 from performance_analysis.strategy_upgrade_candidate_analyzer import analyze_strategy_upgrade_candidates
 from strategy_management.config import get_strategy_config_summary
-from strategy_management.config import initialize_strategy_config
 from performance_analysis.strategy_version_comparison import analyze_strategy_version_comparison
 from performance_analysis.strategy_rollback_analyzer import analyze_strategy_rollback
 from strategy_management.candidate_reviewer import review_strategy_candidates
@@ -74,82 +73,15 @@ from ai_observation_performance import update_ai_observation_performance
 from performance_analysis.ai_observation_analyzer import analyze_ai_observation_performance
 from performance_analysis.ai_observation_signal_analyzer import analyze_ai_observation_signal_performance
 from performance_analysis.ai_observation_market_analyzer import analyze_ai_observation_market_performance
-from performance_analysis.ai_observation_score_analyzer import analyze_ai_observation_score
+from performance_analysis.ai_observation_score_analyzer import (
+    analyze_ai_observation_score,
+)
 
 from kis.auto_trade_bridge import execute_candidate_auto_buy
 from kis.auto_trade_bridge import print_bridge_result
-from kis.auto_sell import (
-    monitor_and_sell_holdings,
-    print_auto_sell_results,
-)
-from kis.execution_sync import synchronize_trade_executions
-from kis.execution_sync import print_sync_results
-from kis.holding_sync import (
-    synchronize_kis_holdings,
-    print_holding_sync_results,
-)
 
 
-initialize_database()
-initialize_strategy_version()
-initialize_strategy_config()
-
-holding_sync_results = []
-holding_sync_succeeded = False
-
-try:
-    holding_sync_results = (
-        synchronize_kis_holdings()
-    )
-
-    holding_sync_succeeded = True
-
-    print_holding_sync_results(
-        holding_sync_results
-    )
-
-except Exception as error:
-    print("\n" + "#" * 80)
-    print("KIS 보유 종목 DB 동기화 실패")
-    print("#" * 80)
-    print(f"오류: {error}")
-
-try:
-    sync_results = synchronize_trade_executions()
-    print_sync_results(sync_results)
-
-except Exception as error:
-    print("\n" + "#" * 80)
-    print("KIS 주문 체결 상태 동기화 실패")
-    print("#" * 80)
-    print(f"오류: {error}")
-
-if not holding_sync_succeeded:
-    print("\n" + "#" * 80)
-    print("KIS 자동매도 점검 차단")
-    print("#" * 80)
-    print(
-        "이유: 보유 종목 동기화에 실패하여 "
-        "계좌 보유 상태를 확인할 수 없습니다."
-    )
-
-else:
-    try:
-        auto_sell_results = (
-            monitor_and_sell_holdings(
-                holding_sync_results
-            )
-        )
-
-        print_auto_sell_results(
-            auto_sell_results
-        )
-
-    except Exception as error:
-        print("\n" + "#" * 80)
-        print("KIS 자동매도 점검 실패")
-        print("#" * 80)
-        print(f"오류: {error}")
+run_startup_tasks()
 
 print("\n" + "#" * 80)
 print("현재 활성 전략 설정")
