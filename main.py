@@ -3,7 +3,7 @@ import pandas as pd
 from data import get_stock_data
 from data import calculate_indicators
 
-from strategy import analyze_stock
+from strategies.stock_strategy import analyze_stock
 
 from backtest import backtest
 from backtest import analyze_backtest
@@ -14,44 +14,44 @@ from report import save_report
 from history import save_history
 from history_analyzer import analyze_history
 from performance import analyze_recommendation_performance
-from email_sender import send_email
+from notifications.email_sender import send_email
 from strategy_performance import analyze_strategy_performance
-from risk import calculate_position
+from trading.risk_manager import calculate_position
 from market import analyze_market
-from database import initialize_database
-from database import save_recommendation_to_database
+from storage.database import initialize_database
+from storage.database import save_recommendation_to_database
 from sector import print_sector_performance
 from sector import analyze_sector_performance
 from sector import get_sector_name
 from sector import calculate_sector_bonus
-from database_analyzer import analyze_database_recommendations
-from performance_db import update_recommendation_performance
-from real_performance import analyze_real_performance
-from market_performance import analyze_market_performance
-from sector_real_performance import analyze_sector_real_performance
-from factor_performance import analyze_rsi_performance
-from factor_performance import analyze_macd_performance
-from factor_performance import analyze_atr_performance
-from factor_performance import analyze_bollinger_performance
-from factor_performance import analyze_final_score_performance
-from holding_period_performance import analyze_holding_period_performance
-from strategy_score import analyze_strategy_score
-from stock_real_performance import analyze_stock_real_performance
-from real_risk_guard import check_real_risk_guard
-from trade_permission import can_send_trade_email
-from observation_email_sender import send_observation_email
-from email_log import was_email_sent_today
-from email_log import mark_email_sent_today
+from storage.database_analyzer import analyze_database_recommendations
+from storage.performance_db import update_recommendation_performance
+from performance_analysis.real_performance import analyze_real_performance
+from performance_analysis.market_performance import analyze_market_performance
+from performance_analysis.sector_real_performance import analyze_sector_real_performance
+from performance_analysis.factor_performance import analyze_rsi_performance
+from performance_analysis.factor_performance import analyze_macd_performance
+from performance_analysis.factor_performance import analyze_atr_performance
+from performance_analysis.factor_performance import analyze_bollinger_performance
+from performance_analysis.factor_performance import analyze_final_score_performance
+from performance_analysis.holding_period_performance import analyze_holding_period_performance
+from performance_analysis.strategy_score import analyze_strategy_score
+from performance_analysis.stock_real_performance import analyze_stock_real_performance
+from trading.real_risk_guard import check_real_risk_guard
+from trading.trade_permission import can_send_trade_email
+from notifications.observation_email_sender import send_observation_email
+from notifications.email_log import was_email_sent_today
+from notifications.email_log import mark_email_sent_today
 from recommendation_reason import generate_recommendation_reason
 from adaptive_score import apply_adaptive_score
-from loss_analyzer import analyze_losing_patterns
+from performance_analysis.loss_analyzer import analyze_losing_patterns
 from sector_penalty import apply_sector_penalty
 from factor_penalty import apply_factor_penalty
-from score_adjustment_analyzer import analyze_score_adjustments
-from recommendation_reason_analyzer import analyze_recommendation_reason_performance
+from performance_analysis.score_adjustment_analyzer import analyze_score_adjustments
+from performance_analysis.recommendation_reason_analyzer import analyze_recommendation_reason_performance
 from reason_score import apply_reason_score
-from observation_database import save_observation_candidate
-from strategy_optimizer import analyze_strategy_optimization_suggestions
+from storage.observation_database import save_observation_candidate
+from performance_analysis.strategy_optimizer import analyze_strategy_optimization_suggestions
 from strategy_evolution import save_strategy_evolution
 from strategy_evolution_analyzer import analyze_strategy_evolution_history
 from strategy_version import initialize_strategy_version
@@ -66,21 +66,38 @@ from strategy_version_comparison import analyze_strategy_version_comparison
 from strategy_rollback_analyzer import analyze_strategy_rollback
 from strategy_candidate_reviewer import review_strategy_candidates
 from strategy_config_optimizer import analyze_strategy_config_optimization
-from no_candidate_email_sender import send_no_candidate_email
+from notifications.no_candidate_email_sender import send_no_candidate_email
 from ai_candidate_loader import load_ai_candidates
 from ai_candidate_loader import is_ai_candidate
 from ai_candidate_loader import get_ai_probability
-from ai_observation_database import save_ai_observations
+from storage.ai_observation_database import save_ai_observations
 from ai_observation_performance import update_ai_observation_performance
 from ai_observation_analyzer import analyze_ai_observation_performance
 from ai_observation_signal_analyzer import analyze_ai_observation_signal_performance
 from ai_observation_market_analyzer import analyze_ai_observation_market_performance
 from ai_observation_score_analyzer import analyze_ai_observation_score
 
+from kis.auto_trade_bridge import execute_candidate_auto_buy
+from kis.auto_trade_bridge import print_bridge_result
+from kis.auto_sell import monitor_and_sell_holdings
+from kis.auto_sell import print_auto_sell_results
+
 
 initialize_database()
 initialize_strategy_version()
 initialize_strategy_config()
+
+print("\n" + "#" * 80)
+print("KIS 보유 종목 자동매도 점검")
+print("#" * 80)
+
+try:
+    auto_sell_results = monitor_and_sell_holdings()
+    print_auto_sell_results(auto_sell_results)
+
+except Exception as error:
+    print("KIS 자동매도 점검 실패")
+    print(f"오류: {error}")
 
 print("\n" + "#" * 80)
 print("현재 활성 전략 설정")
@@ -351,6 +368,38 @@ else:
     save_recommendation_to_database(best_stock, market_result)
 
     can_real_trade = check_real_risk_guard()
+
+    print("\n" + "#" * 80)
+    print("KIS 자동매매 판단")
+    print("#" * 80)
+
+    if not can_real_trade:
+        print("자동매매 실행 안 함")
+        print("이유: 실전 리스크 가드가 매수를 허용하지 않았습니다.")
+
+    elif not best_stock.get("is_ai_candidate"):
+        print("자동매매 실행 안 함")
+        print("이유: 최종 추천 종목이 AI 후보가 아닙니다.")
+
+    else:
+        try:
+            auto_trade_result = execute_candidate_auto_buy(
+                ticker=best_stock["ticker"],
+                ai_probability=best_stock.get(
+                    "ai_probability",
+                    0,
+                ),
+                market_is_bull=market_result[
+                    "is_market_bull"
+                ],
+                risk_allowed=can_real_trade,
+            )
+
+            print_bridge_result(auto_trade_result)
+
+        except Exception as error:
+            print("KIS 자동매매 실행 실패")
+            print(f"오류: {error}")
 
     if was_email_sent_today():
         print("오늘 이미 이메일을 발송했습니다. 이메일 발송 생략")
