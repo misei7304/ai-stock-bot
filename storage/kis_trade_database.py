@@ -40,6 +40,32 @@ def initialize_kis_trade_tables():
             """
         )
 
+        cursor.execute(
+            "PRAGMA table_info(kis_trade_history)"
+        )
+
+        existing_columns = {
+            row[1]
+            for row in cursor.fetchall()
+        }
+
+        additional_columns = {
+            "executed_quantity": "INTEGER",
+            "remaining_quantity": "INTEGER",
+            "execution_updated_at": "TEXT",
+        }
+
+        for column_name, column_type in (
+            additional_columns.items()
+        ):
+            if column_name not in existing_columns:
+                cursor.execute(
+                    f"""
+                    ALTER TABLE kis_trade_history
+                    ADD COLUMN {column_name} {column_type}
+                    """
+                )
+
         connection.commit()
 
     finally:
