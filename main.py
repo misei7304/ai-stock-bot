@@ -393,6 +393,9 @@ else:
                     "is_market_bull"
                 ],
                 risk_allowed=can_real_trade,
+                stock_name=best_stock[
+                    "company_name"
+                ],
             )
 
             print_bridge_result(auto_trade_result)

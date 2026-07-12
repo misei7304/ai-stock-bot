@@ -72,6 +72,7 @@ def execute_candidate_auto_buy(
     market_is_bull,
     risk_allowed,
     max_order_amount=None,
+    stock_name=None,
 ):
     stock_code = normalize_stock_code(ticker)
 
@@ -92,6 +93,7 @@ def execute_candidate_auto_buy(
         estimated_amount=quantity_info[
             "estimated_amount"
         ],
+        stock_name=stock_name,
     )
 
     return {
