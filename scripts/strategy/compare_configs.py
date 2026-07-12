@@ -44,4 +44,9 @@ def compare_strategy_configs():
     print(f"팩터 패널티: {previous[3]:g} → {current[3]:g}")
 
 
-compare_strategy_configs()
+def main():
+    compare_strategy_configs()
+
+
+if __name__ == "__main__":
+    main()

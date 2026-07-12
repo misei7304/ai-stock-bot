@@ -1,5 +1,3 @@
-import sys
-
 from storage.database import get_connection
 from strategy_management.config import initialize_strategy_config
 
@@ -100,11 +98,36 @@ def create_strategy_version_from_candidate(candidate_id, new_version):
     return True
 
 
-if len(sys.argv) < 3:
-    print("사용법: python create_strategy_version_from_candidate.py 후보ID 새버전")
-    sys.exit(1)
+def parse_args():
+    import argparse
 
-candidate_id = int(sys.argv[1])
-new_version = sys.argv[2]
+    parser = argparse.ArgumentParser(
+        description="승인된 후보로부터 새 전략 버전을 생성합니다."
+    )
+    parser.add_argument(
+        "candidate_id",
+        type=int,
+        help="approved 상태인 후보 ID",
+    )
+    parser.add_argument(
+        "new_version",
+        help="새 전략 버전. 예: v1.3.0",
+    )
 
-create_strategy_version_from_candidate(candidate_id, new_version)
+    return parser.parse_args()
+
+
+def main():
+    args = parse_args()
+
+    success = create_strategy_version_from_candidate(
+        candidate_id=args.candidate_id,
+        new_version=args.new_version,
+    )
+
+    if not success:
+        raise SystemExit(1)
+
+
+if __name__ == "__main__":
+    main()

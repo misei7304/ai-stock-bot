@@ -42,4 +42,9 @@ def list_strategy_configs():
         )
 
 
-list_strategy_configs()
+def main():
+    list_strategy_configs()
+
+
+if __name__ == "__main__":
+    main()

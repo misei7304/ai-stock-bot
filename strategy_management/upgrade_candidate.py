@@ -30,7 +30,11 @@ def save_strategy_upgrade_candidate():
         FROM strategy_upgrade_candidates
         WHERE base_version = ?
         AND suggestion_text = ?
-        AND status = 'pending'
+        AND status IN (
+            'pending',
+            'reviewed',
+            'approved'
+        )
     """, (
         current_version,
         suggestion_text,
@@ -40,7 +44,10 @@ def save_strategy_upgrade_candidate():
 
     if existing_count > 0:
         connection.close()
-        print("전략 업그레이드 후보 저장 생략: 이미 같은 pending 후보가 있습니다.")
+        print(
+            "전략 업그레이드 후보 저장 생략: "
+            "이미 같은 미완료 후보가 있습니다."
+        )
         return False
 
     cursor.execute("""

@@ -16,19 +16,17 @@ def list_strategy_versions():
     """)
 
     rows = cursor.fetchall()
-
     connection.close()
 
     print("\n" + "#" * 80)
     print("전략 버전 목록")
     print("#" * 80)
 
-    for row in rows:
-        version = row[0]
-        name = row[1]
-        is_active = row[2]
-        created_at = row[3]
+    if not rows:
+        print("등록된 전략 버전이 없습니다.")
+        return
 
+    for version, name, is_active, created_at in rows:
         status = "ACTIVE" if is_active else ""
 
         print(
@@ -39,4 +37,9 @@ def list_strategy_versions():
         )
 
 
-list_strategy_versions()
+def main():
+    list_strategy_versions()
+
+
+if __name__ == "__main__":
+    main()

@@ -1,5 +1,3 @@
-import sys
-
 from storage.database import get_connection
 from strategy_management.config import initialize_strategy_config
 from strategy_management.config_history import save_strategy_config_history
@@ -38,6 +36,19 @@ def update_strategy_config(
     old_atr_penalty_threshold = old_config[1]
     old_factor_penalty = old_config[2]
 
+    if (
+        old_rsi_limit == rsi_limit
+        and old_atr_penalty_threshold == atr_penalty_threshold
+        and old_factor_penalty == factor_penalty
+    ):
+        connection.close()
+
+        print(
+            f"전략 설정 수정 생략: "
+            f"{strategy_version} 설정이 기존 값과 같습니다."
+        )
+        return True
+
     cursor.execute("""
         UPDATE strategy_configs
         SET
@@ -73,20 +84,48 @@ def update_strategy_config(
     return True
 
 
-if len(sys.argv) != 5:
-    print(
-        "사용법: python update_strategy_config.py 버전 RSI ATR패널티기준 팩터패널티"
+def parse_args():
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="특정 전략 버전의 설정을 수정합니다."
     )
-    sys.exit(1)
+    parser.add_argument(
+        "strategy_version",
+        help="수정할 전략 버전. 예: v1.2.0",
+    )
+    parser.add_argument(
+        "rsi_limit",
+        type=float,
+        help="새 RSI 제한",
+    )
+    parser.add_argument(
+        "atr_penalty_threshold",
+        type=float,
+        help="새 ATR 패널티 기준",
+    )
+    parser.add_argument(
+        "factor_penalty",
+        type=float,
+        help="새 팩터 패널티",
+    )
 
-strategy_version = sys.argv[1]
-rsi_limit = float(sys.argv[2])
-atr_penalty_threshold = float(sys.argv[3])
-factor_penalty = float(sys.argv[4])
+    return parser.parse_args()
 
-update_strategy_config(
-    strategy_version,
-    rsi_limit,
-    atr_penalty_threshold,
-    factor_penalty,
-)
+
+def main():
+    args = parse_args()
+
+    success = update_strategy_config(
+        strategy_version=args.strategy_version,
+        rsi_limit=args.rsi_limit,
+        atr_penalty_threshold=args.atr_penalty_threshold,
+        factor_penalty=args.factor_penalty,
+    )
+
+    if not success:
+        raise SystemExit(1)
+
+
+if __name__ == "__main__":
+    main()

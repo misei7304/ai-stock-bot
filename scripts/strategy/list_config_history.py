@@ -52,4 +52,9 @@ def list_strategy_config_history():
         )
 
 
-list_strategy_config_history()
+def main():
+    list_strategy_config_history()
+
+
+if __name__ == "__main__":
+    main()
