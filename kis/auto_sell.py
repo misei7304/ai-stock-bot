@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 from kis.balance import get_balance
 from kis.price import get_stock_price
 from kis.safe_order import safe_sell_market_order
+from storage.kis_trade_database import save_kis_trade
 
 
 load_dotenv()
@@ -78,6 +79,42 @@ def save_sell_log(data):
             + "\n"
         )
 
+def save_sell_trade_to_database(result):
+    order_result = result.get("order_result", {})
+    submitted_order = order_result.get("order", {})
+
+    return save_kis_trade(
+        trade_type="sell",
+        stock_code=result.get("stock_code"),
+        stock_name=result.get("stock_name"),
+        quantity=int(result.get("quantity") or 0),
+        average_buy_price=result.get(
+            "average_price"
+        ),
+        order_price=submitted_order.get(
+            "price"
+        ),
+        current_price=result.get(
+            "current_price"
+        ),
+        return_rate=result.get(
+            "return_rate"
+        ),
+        estimated_amount=(
+            float(result.get("current_price") or 0)
+            * int(result.get("quantity") or 0)
+        ),
+        status=result.get("status"),
+        reason=result.get("reason"),
+        order_number=submitted_order.get(
+            "order_number"
+        ),
+        order_time=submitted_order.get(
+            "order_time"
+        ),
+        message=result.get("message"),
+        error=result.get("error"),
+    )
 
 def get_holdings():
     result = get_balance()
@@ -230,6 +267,7 @@ def execute_auto_sell(holding_result):
         }
 
         save_sell_log(result)
+        save_sell_trade_to_database(result)
         return result
 
     if KIS_SELL_DRY_RUN:
@@ -244,6 +282,7 @@ def execute_auto_sell(holding_result):
         }
 
         save_sell_log(result)
+        save_sell_trade_to_database(result)
         return result
 
     try:
@@ -263,16 +302,10 @@ def execute_auto_sell(holding_result):
         }
 
         save_sell_log(result)
+        save_sell_trade_to_database(result)
         return result
 
-    except Exception as error:
-        result = {
-            "status": "failed",
-            **request_data,
-            "error": str(error),
-        }
-
-        save_sell_log(result)
+    except Exception:
         raise
 
 
@@ -315,6 +348,7 @@ def monitor_and_sell_holdings():
             }
 
             save_sell_log(failed_result)
+            save_sell_trade_to_database(failed_result)
             results.append(failed_result)
 
     return results
