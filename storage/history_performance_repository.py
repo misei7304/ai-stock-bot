@@ -48,3 +48,51 @@ def save_history_rows(
 
         writer.writeheader()
         writer.writerows(rows)
+
+
+def history_contains_recommendation(
+    recommendation_date,
+    ticker,
+):
+    if not history_file_exists():
+        return False
+
+    history_data = load_history_rows()
+
+    for row in history_data["rows"]:
+        same_date = (
+            row["날짜"]
+            == recommendation_date
+        )
+        same_ticker = (
+            row["종목코드"]
+            == ticker
+        )
+
+        if same_date and same_ticker:
+            return True
+
+    return False
+
+
+def append_history_row(
+    fieldnames,
+    row,
+):
+    file_exists = history_file_exists()
+
+    with open(
+        HISTORY_FILE_NAME,
+        "a",
+        newline="",
+        encoding="utf-8-sig",
+    ) as file:
+        writer = csv.DictWriter(
+            file,
+            fieldnames=fieldnames,
+        )
+
+        if not file_exists:
+            writer.writeheader()
+
+        writer.writerow(row)
