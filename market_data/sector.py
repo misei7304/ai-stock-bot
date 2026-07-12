@@ -118,7 +118,7 @@ def analyze_sector_performance(results):
                 "total_final_score": 0,
                 "total_average_return": 0,
                 "total_win_rate": 0,
-                "buy_candidate_count": 0,
+                "strategy_candidate_count": 0,
             }
 
         sector_stats[sector_name]["count"] += 1
@@ -127,7 +127,7 @@ def analyze_sector_performance(results):
         sector_stats[sector_name]["total_win_rate"] += stock["win_rate"]
 
         if stock["is_buy_candidate"]:
-            sector_stats[sector_name]["buy_candidate_count"] += 1
+            sector_stats[sector_name]["strategy_candidate_count"] += 1
 
     sector_ranking = []
 
@@ -145,7 +145,7 @@ def analyze_sector_performance(results):
             "average_final_score": average_final_score,
             "average_return": average_return,
             "average_win_rate": average_win_rate,
-            "buy_candidate_count": stats["buy_candidate_count"],
+            "strategy_candidate_count": stats["strategy_candidate_count"],
         })
 
     sector_ranking = sorted(
@@ -179,7 +179,7 @@ def print_sector_performance(results):
             f"평균최종점수 {sector['average_final_score']:.2f} | "
             f"평균수익 {sector['average_return']:.2f}% | "
             f"평균승률 {sector['average_win_rate']:.2f}% | "
-            f"매수후보 {sector['buy_candidate_count']}개"
+            f"전략조건충족 {sector['strategy_candidate_count']}개"
         )
 
         rank += 1
