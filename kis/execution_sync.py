@@ -25,7 +25,11 @@ def get_pending_submitted_trades():
             """
             SELECT *
             FROM kis_trade_history
-            WHERE status = 'submitted'
+            WHERE status IN (
+                'submitted',
+                'partial',
+                'unfilled'
+            )
               AND order_number IS NOT NULL
               AND order_number != ''
             ORDER BY id ASC
@@ -330,7 +334,7 @@ def print_sync_results(results):
 
     if not results:
         print(
-            "동기화할 submitted 주문이 없습니다."
+            "동기화할 미체결 주문이 없습니다."
         )
         return
 
