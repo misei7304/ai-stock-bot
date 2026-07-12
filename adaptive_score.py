@@ -1,4 +1,4 @@
-from database import get_connection
+from storage.database import get_connection
 
 
 def get_average_return_by_final_score_bucket(final_score):

@@ -1,4 +1,4 @@
-from database import get_connection
+from storage.database import get_connection
 
 
 def approve_strategy_upgrade_candidate(candidate_id):

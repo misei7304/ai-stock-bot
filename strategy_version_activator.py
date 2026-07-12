@@ -1,4 +1,4 @@
-from database import get_connection
+from storage.database import get_connection
 
 
 def activate_strategy_version(version):

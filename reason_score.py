@@ -1,4 +1,4 @@
-from database import get_connection
+from storage.database import get_connection
 from recommendation_reason import generate_recommendation_reason
 
 

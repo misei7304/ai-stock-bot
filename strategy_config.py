@@ -1,4 +1,4 @@
-from database import get_connection
+from storage.database import get_connection
 from strategy_version import get_current_strategy_version
 
 

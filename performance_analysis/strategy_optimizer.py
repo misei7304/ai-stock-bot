@@ -1,4 +1,4 @@
-from database import get_connection
+from storage.database import get_connection
 
 
 def get_strategy_optimization_suggestions():

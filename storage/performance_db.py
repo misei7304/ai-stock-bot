@@ -1,7 +1,7 @@
 import pandas as pd
 import yfinance as yf
 
-from database import get_connection
+from storage.database import get_connection
 
 
 def get_price_data(ticker):

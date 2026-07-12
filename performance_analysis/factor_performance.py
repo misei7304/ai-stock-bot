@@ -1,4 +1,4 @@
-from database import get_connection
+from storage.database import get_connection
 
 
 def print_factor_performance(title, empty_message, rows, bucket_function, bucket_order):

@@ -1,4 +1,4 @@
-from database import save_recommendation_to_database
+from storage.database import save_recommendation_to_database
 
 
 def save_observation_candidate(stock, market_result):

@@ -1,9 +1,9 @@
-from strategy_version_comparison import (
+from performance_analysis.strategy_version_comparison import (
     get_previous_strategy_version,
     find_performance,
 )
 from strategy_version import get_current_strategy_version
-from strategy_version_performance import get_strategy_version_performance_data
+from performance_analysis.strategy_version_performance import get_strategy_version_performance_data
 
 
 def get_strategy_rollback_analysis_summary():

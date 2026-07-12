@@ -1,4 +1,4 @@
-from database import get_connection
+from storage.database import get_connection
 
 
 def analyze_sector_real_performance():

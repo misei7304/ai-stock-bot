@@ -1,6 +1,6 @@
-from database import get_connection
+from storage.database import get_connection
 from strategy_version import get_current_strategy_version
-from strategy_optimizer import get_strategy_optimization_suggestions
+from performance_analysis.strategy_optimizer import get_strategy_optimization_suggestions
 
 
 def save_strategy_upgrade_candidate():

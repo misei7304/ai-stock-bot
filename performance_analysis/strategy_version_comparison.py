@@ -1,6 +1,6 @@
-from database import get_connection
+from storage.database import get_connection
 from strategy_version import get_current_strategy_version
-from strategy_version_performance import get_strategy_version_performance_data
+from performance_analysis.strategy_version_performance import get_strategy_version_performance_data
 
 
 def get_previous_strategy_version(current_version):

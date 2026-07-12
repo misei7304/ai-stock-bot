@@ -1,4 +1,4 @@
-from database import get_connection
+from storage.database import get_connection
 
 
 def create_next_strategy_version_from_candidate(candidate_id):

@@ -1,4 +1,4 @@
-from database import get_connection
+from storage.database import get_connection
 
 
 def get_sector_penalty(sector_name):

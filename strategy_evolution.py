@@ -1,7 +1,7 @@
 from datetime import date
 
-from database import get_connection
-from strategy_optimizer import get_strategy_optimization_suggestions
+from storage.database import get_connection
+from performance_analysis.strategy_optimizer import get_strategy_optimization_suggestions
 
 
 def save_strategy_evolution():

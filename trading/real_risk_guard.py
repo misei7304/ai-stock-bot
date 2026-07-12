@@ -1,4 +1,4 @@
-from database import get_connection
+from storage.database import get_connection
 
 
 def check_real_risk_guard():

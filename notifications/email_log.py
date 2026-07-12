@@ -1,6 +1,6 @@
 from datetime import date
 
-from database import get_connection
+from storage.database import get_connection
 
 
 def was_email_sent_today():

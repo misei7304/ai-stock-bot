@@ -4,7 +4,7 @@ from email.mime.text import MIMEText
 
 from dotenv import load_dotenv
 
-from risk import calculate_position
+from trading.risk_manager import calculate_position
 
 
 load_dotenv()

@@ -1,4 +1,4 @@
-from database import get_connection
+from storage.database import get_connection
 
 
 CURRENT_STRATEGY_VERSION = "v1.0.0"

@@ -17,3 +17,5 @@ ml/*.csv
 ml/*.pkl
 
 kis/token.json
+# Runtime logs
+logs/

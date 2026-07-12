@@ -1,5 +1,5 @@
 from strategy_config import get_strategy_config
-from loss_analyzer import get_losing_recommendations
+from performance_analysis.loss_analyzer import get_losing_recommendations
 
 
 def get_strategy_config_optimization_summary():

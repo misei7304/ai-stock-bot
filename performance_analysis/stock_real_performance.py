@@ -1,4 +1,4 @@
-from database import get_connection
+from storage.database import get_connection
 
 
 def analyze_stock_real_performance():
