@@ -3,7 +3,7 @@ import smtplib
 from email.mime.text import MIMEText
 
 from dotenv import load_dotenv
-from recommendation_reason import generate_recommendation_reason
+from scoring.recommendation_reason import generate_recommendation_reason
 from performance_analysis.strategy_optimizer import get_strategy_optimization_suggestions
 from strategy_management.version import get_current_strategy_version
 from performance_analysis.strategy_version_performance import get_strategy_version_performance_summary

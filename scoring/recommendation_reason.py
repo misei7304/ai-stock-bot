@@ -1,5 +1,6 @@
+from strategy_management.config import get_strategy_config
+
 def generate_recommendation_reason(stock, market_result):
-    from strategy_management.config import get_strategy_config
 
     config = get_strategy_config()
     rsi_limit = config["rsi_limit"]

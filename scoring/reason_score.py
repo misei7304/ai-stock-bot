@@ -1,5 +1,5 @@
 from storage.database import get_connection
-from recommendation_reason import generate_recommendation_reason
+from scoring.recommendation_reason import generate_recommendation_reason
 
 
 def get_reason_score_adjustment(stock, market_result):

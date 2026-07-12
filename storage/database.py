@@ -1,7 +1,5 @@
 import sqlite3
 
-from recommendation_reason import generate_recommendation_reason
-
 
 DATABASE_NAME = "stock_bot.db"
 
@@ -89,7 +87,18 @@ def initialize_database():
     connection.close()
 
 
-def save_recommendation_to_database(stock, market_result, recommendation_type="real"):
+def save_recommendation_to_database(
+    stock,
+    market_result,
+    recommendation_type="real",
+):
+    from scoring.recommendation_reason import (
+        generate_recommendation_reason,
+    )
+    from strategy_management.version import (
+        get_current_strategy_version,
+    )
+
     connection = get_connection()
     cursor = connection.cursor()
 
@@ -111,9 +120,11 @@ def save_recommendation_to_database(stock, market_result, recommendation_type="r
 
     position = stock["position"]
 
-    recommendation_reason = generate_recommendation_reason(stock, market_result)
+    recommendation_reason = generate_recommendation_reason(
+        stock,
+        market_result,
+    )
 
-    from strategy_management.version import get_current_strategy_version
     strategy_version = get_current_strategy_version()
 
     cursor.execute("""
