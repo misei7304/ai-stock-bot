@@ -1,6 +1,6 @@
 import sys
 
-from strategy_upgrade_candidate import mark_strategy_candidate_reviewed
+from strategy_management.upgrade_candidate import mark_strategy_candidate_reviewed
 
 
 if len(sys.argv) < 2:

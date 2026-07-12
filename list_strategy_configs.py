@@ -1,5 +1,5 @@
 from storage.database import get_connection
-from strategy_config import initialize_strategy_config
+from strategy_management.config import initialize_strategy_config
 
 
 def list_strategy_configs():

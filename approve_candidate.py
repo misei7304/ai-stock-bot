@@ -1,6 +1,6 @@
 import sys
 
-from strategy_upgrade_candidate import (
+from strategy_management.upgrade_candidate import (
     approve_strategy_candidate
 )
 

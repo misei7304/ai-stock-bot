@@ -1,4 +1,4 @@
-from strategy_config import get_strategy_config
+from strategy_management.config import get_strategy_config
 
 
 def get_factor_penalty(stock):

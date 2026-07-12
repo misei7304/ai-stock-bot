@@ -1,8 +1,8 @@
 import sys
 
 from storage.database import get_connection
-from strategy_config import initialize_strategy_config
-from strategy_config_history import save_strategy_config_history
+from strategy_management.config import initialize_strategy_config
+from strategy_management.config_history import save_strategy_config_history
 
 
 def update_strategy_config(

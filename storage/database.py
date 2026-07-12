@@ -113,7 +113,7 @@ def save_recommendation_to_database(stock, market_result, recommendation_type="r
 
     recommendation_reason = generate_recommendation_reason(stock, market_result)
 
-    from strategy_version import get_current_strategy_version
+    from strategy_management.version import get_current_strategy_version
     strategy_version = get_current_strategy_version()
 
     cursor.execute("""

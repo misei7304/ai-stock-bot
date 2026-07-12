@@ -1,7 +1,7 @@
 import sys
 
 from storage.database import get_connection
-from strategy_config import initialize_strategy_config
+from strategy_management.config import initialize_strategy_config
 
 
 def create_strategy_version_from_candidate(candidate_id, new_version):

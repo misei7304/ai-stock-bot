@@ -1,7 +1,7 @@
 import os
 
 from dotenv import load_dotenv
-from strategy_config import get_strategy_config
+from strategy_management.config import get_strategy_config
 
 
 load_dotenv()

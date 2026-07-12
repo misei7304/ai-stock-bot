@@ -1,4 +1,4 @@
-from strategy_upgrade_candidate import (
+from strategy_management.upgrade_candidate import (
     get_pending_strategy_candidates
 )
 

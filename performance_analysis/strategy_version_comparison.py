@@ -1,5 +1,5 @@
 from storage.database import get_connection
-from strategy_version import get_current_strategy_version
+from strategy_management.version import get_current_strategy_version
 from performance_analysis.strategy_version_performance import get_strategy_version_performance_data
 
 

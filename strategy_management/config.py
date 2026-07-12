@@ -1,5 +1,5 @@
 from storage.database import get_connection
-from strategy_version import get_current_strategy_version
+from strategy_management.version import get_current_strategy_version
 
 
 def initialize_strategy_config():
