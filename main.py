@@ -79,24 +79,55 @@ from ai_observation_score_analyzer import analyze_ai_observation_score
 
 from kis.auto_trade_bridge import execute_candidate_auto_buy
 from kis.auto_trade_bridge import print_bridge_result
-from kis.auto_sell import monitor_and_sell_holdings
-from kis.auto_sell import print_auto_sell_results
+from kis.auto_sell import (
+    monitor_and_sell_holdings,
+    print_auto_sell_results,
+)
+from kis.execution_sync import synchronize_trade_executions
+from kis.execution_sync import print_sync_results
+from kis.holding_sync import (
+    synchronize_kis_holdings,
+    print_holding_sync_results,
+)
 
 
 initialize_database()
 initialize_strategy_version()
 initialize_strategy_config()
 
-print("\n" + "#" * 80)
-print("KIS 보유 종목 자동매도 점검")
-print("#" * 80)
+try:
+    holding_sync_results = (
+        synchronize_kis_holdings()
+    )
+
+    print_holding_sync_results(
+        holding_sync_results
+    )
+
+except Exception as error:
+    print("\n" + "#" * 80)
+    print("KIS 보유 종목 DB 동기화 실패")
+    print("#" * 80)
+    print(f"오류: {error}")
+
+try:
+    sync_results = synchronize_trade_executions()
+    print_sync_results(sync_results)
+
+except Exception as error:
+    print("\n" + "#" * 80)
+    print("KIS 주문 체결 상태 동기화 실패")
+    print("#" * 80)
+    print(f"오류: {error}")
 
 try:
     auto_sell_results = monitor_and_sell_holdings()
     print_auto_sell_results(auto_sell_results)
 
 except Exception as error:
+    print("\n" + "#" * 80)
     print("KIS 자동매도 점검 실패")
+    print("#" * 80)
     print(f"오류: {error}")
 
 print("\n" + "#" * 80)
