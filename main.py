@@ -1,17 +1,3 @@
-import pandas as pd
-
-from services.startup_service import run_startup_tasks
-
-from market_data.data import calculate_indicators
-from market_data.data import get_stock_data
-
-from strategies.stock_strategy import analyze_stock
-
-from backtest import backtest
-from backtest import analyze_backtest
-from backtest import simulate_account
-
-from market_data.stocks import stocks
 from report import save_report
 from history import save_history
 from performance_analysis.history_analyzer import analyze_history
@@ -22,9 +8,6 @@ from trading.risk_manager import calculate_position
 from market_data.market import analyze_market
 from storage.database import save_recommendation_to_database
 from market_data.sector import print_sector_performance
-from market_data.sector import analyze_sector_performance
-from market_data.sector import get_sector_name
-from market_data.sector import calculate_sector_bonus
 from storage.database_analyzer import analyze_database_recommendations
 from storage.performance_db import update_recommendation_performance
 from performance_analysis.real_performance import analyze_real_performance
@@ -44,13 +27,9 @@ from notifications.observation_email_sender import send_observation_email
 from notifications.email_log import was_email_sent_today
 from notifications.email_log import mark_email_sent_today
 from scoring.recommendation_reason import generate_recommendation_reason
-from scoring.adaptive_score import apply_adaptive_score
 from performance_analysis.loss_analyzer import analyze_losing_patterns
-from scoring.sector_penalty import apply_sector_penalty
-from scoring.factor_penalty import apply_factor_penalty
 from performance_analysis.score_adjustment_analyzer import analyze_score_adjustments
 from performance_analysis.recommendation_reason_analyzer import analyze_recommendation_reason_performance
-from scoring.reason_score import apply_reason_score
 from storage.observation_database import save_observation_candidate
 from performance_analysis.strategy_optimizer import analyze_strategy_optimization_suggestions
 from strategy_management.evolution import save_strategy_evolution
@@ -66,8 +45,6 @@ from strategy_management.candidate_reviewer import review_strategy_candidates
 from strategy_management.config_optimizer import analyze_strategy_config_optimization
 from notifications.no_candidate_email_sender import send_no_candidate_email
 from ai_candidate_loader import load_ai_candidates
-from ai_candidate_loader import is_ai_candidate
-from ai_candidate_loader import get_ai_probability
 from storage.ai_observation_database import save_ai_observations
 from ai_observation_performance import update_ai_observation_performance
 from performance_analysis.ai_observation_analyzer import analyze_ai_observation_performance
@@ -75,6 +52,11 @@ from performance_analysis.ai_observation_signal_analyzer import analyze_ai_obser
 from performance_analysis.ai_observation_market_analyzer import analyze_ai_observation_market_performance
 from performance_analysis.ai_observation_score_analyzer import (
     analyze_ai_observation_score,
+)
+
+from services.startup_service import run_startup_tasks
+from services.stock_analysis_service import (
+    analyze_all_stocks,
 )
 
 from kis.auto_trade_bridge import execute_candidate_auto_buy
@@ -125,73 +107,10 @@ else:
     print("시장 상태: 하락장 또는 약세장")
 
 
-results = []
-
-for ticker, company_name in stocks:
-    data = get_stock_data(ticker)
-    data = calculate_indicators(data)
-
-    result = analyze_stock(data, company_name)
-    result["ticker"] = ticker
-
-    trades = backtest(data)
-
-    backtest_result = analyze_backtest(trades)
-    account_result = simulate_account(trades)
-
-    result["trade_count"] = backtest_result["trade_count"]
-    result["win_rate"] = backtest_result["win_rate"]
-    result["average_return"] = backtest_result["average_return"]
-    result["total_return"] = backtest_result["total_return"]
-    result["best_trade"] = backtest_result["best_trade"]
-    result["worst_trade"] = backtest_result["worst_trade"]
-
-    result["final_money"] = account_result["final_money"]
-    result["profit"] = account_result["profit"]
-
-    if pd.isna(result["total_score"]):
-        result["total_score"] = 0
-
-    final_score = (
-        result["total_score"] * 0.5
-        + result["win_rate"] * 0.3
-        + result["average_return"] * 20
-    )
-
-    result["final_score"] = final_score
-
-    result["is_ai_candidate"] = is_ai_candidate(ticker, ai_candidates)
-    result["ai_probability"] = get_ai_probability(ticker, ai_candidates)
-
-    result["ai_bonus"] = 0
-
-    if result["is_ai_candidate"]:
-        result["ai_bonus"] = result["ai_probability"] * 30
-        result["final_score"] += result["ai_bonus"]
-
-    results.append(result)
-
-sector_ranking = analyze_sector_performance(results)
-
-for stock in results:
-    sector_name = get_sector_name(stock["company_name"])
-    sector_bonus = calculate_sector_bonus(sector_name, sector_ranking)
-
-    stock["sector_name"] = sector_name
-    stock["sector_bonus"] = sector_bonus
-    stock["final_score"] = stock["final_score"] + sector_bonus
-
-for stock in results:
-    stock = apply_adaptive_score(stock)
-
-for stock in results:
-    stock = apply_sector_penalty(stock)
-
-for stock in results:
-    stock = apply_factor_penalty(stock)
-
-for stock in results:
-    stock = apply_reason_score(stock, market_result)
+results = analyze_all_stocks(
+    ai_candidates=ai_candidates,
+    market_result=market_result,
+)
 
 
 print("\n" + "#" * 80)
