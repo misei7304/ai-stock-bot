@@ -6,7 +6,11 @@ from pathlib import Path
 from dotenv import load_dotenv
 
 from kis.safe_order import safe_buy_market_order
-from storage.kis_trade_database import save_kis_trade
+from storage.kis_trade_database import (
+    count_kis_trades_today,
+    has_kis_trade_today,
+    save_kis_trade,
+)
 
 
 load_dotenv()
@@ -86,42 +90,13 @@ def validate_auto_trade_input(
 
 
 def load_today_order_count():
-    if not ORDER_LOG_PATH.exists():
-        return 0
-
-    today = datetime.now().date().isoformat()
-    count = 0
-
-    with open(
-        ORDER_LOG_PATH,
-        "r",
-        encoding="utf-8",
-    ) as file:
-        for line in file:
-            line = line.strip()
-
-            if not line:
-                continue
-
-            try:
-                row = json.loads(line)
-            except json.JSONDecodeError:
-                continue
-
-            created_at = str(
-                row.get("created_at") or ""
-            )
-
-            if not created_at.startswith(today):
-                continue
-
-            if row.get("status") in {
-                "dry_run",
-                "submitted",
-            }:
-                count += 1
-
-    return count
+    return count_kis_trades_today(
+        trade_type="buy",
+        statuses=(
+            "dry_run",
+            "submitted",
+        ),
+    )
 
 
 def save_order_log(data):
@@ -223,6 +198,20 @@ def execute_auto_buy(
         raise RuntimeError(
             "자동주문 기능이 비활성화되어 있습니다.\n"
             "AUTO_TRADING_ENABLED=true로 설정해야 합니다."
+        )
+    
+    if has_kis_trade_today(
+        trade_type="buy",
+        stock_code=stock_code,
+        statuses=(
+            "dry_run",
+            "submitted",
+        ),
+    ):
+        raise RuntimeError(
+            "오늘 이미 동일 종목의 자동매수 기록이 있습니다.\n"
+            f"종목코드: {stock_code}\n"
+            "중복 자동매수를 차단했습니다."
         )
 
     today_order_count = load_today_order_count()

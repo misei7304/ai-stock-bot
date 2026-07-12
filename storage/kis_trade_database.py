@@ -122,6 +122,128 @@ def save_kis_trade(
         connection.close()
 
 
+def has_kis_trade_today(
+    trade_type,
+    stock_code,
+    statuses=None,
+):
+    initialize_kis_trade_tables()
+
+    if statuses is None:
+        statuses = (
+            "dry_run",
+            "submitted",
+        )
+
+    if not statuses:
+        return False
+
+    placeholders = ", ".join(
+        "?"
+        for _ in statuses
+    )
+
+    today = datetime.now().date().isoformat()
+
+    connection = get_connection()
+
+    try:
+        cursor = connection.cursor()
+
+        query = f"""
+            SELECT 1
+            FROM kis_trade_history
+            WHERE trade_type = ?
+              AND stock_code = ?
+              AND substr(created_at, 1, 10) = ?
+              AND status IN ({placeholders})
+            LIMIT 1
+        """
+
+        parameters = (
+            trade_type,
+            stock_code,
+            today,
+            *statuses,
+        )
+
+        cursor.execute(
+            query,
+            parameters,
+        )
+
+        return cursor.fetchone() is not None
+
+    finally:
+        connection.close()
+
+
+def count_kis_trades_today(
+    trade_type=None,
+    statuses=None,
+):
+    initialize_kis_trade_tables()
+
+    if statuses is None:
+        statuses = (
+            "dry_run",
+            "submitted",
+        )
+
+    if not statuses:
+        return 0
+
+    placeholders = ", ".join(
+        "?"
+        for _ in statuses
+    )
+
+    today = datetime.now().date().isoformat()
+
+    conditions = [
+        "substr(created_at, 1, 10) = ?",
+        f"status IN ({placeholders})",
+    ]
+
+    parameters = [
+        today,
+        *statuses,
+    ]
+
+    if trade_type:
+        conditions.append(
+            "trade_type = ?"
+        )
+        parameters.append(
+            trade_type
+        )
+
+    where_clause = " AND ".join(
+        conditions
+    )
+
+    connection = get_connection()
+
+    try:
+        cursor = connection.cursor()
+
+        cursor.execute(
+            f"""
+            SELECT COUNT(*)
+            FROM kis_trade_history
+            WHERE {where_clause}
+            """,
+            tuple(parameters),
+        )
+
+        row = cursor.fetchone()
+
+        return int(row[0] or 0)
+
+    finally:
+        connection.close()
+
+
 def get_recent_kis_trades(limit=20):
     initialize_kis_trade_tables()
 
