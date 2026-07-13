@@ -1,4 +1,4 @@
-import joblib
+import argparse
 import pandas as pd
 
 from datetime import (
@@ -10,7 +10,16 @@ from sklearn.metrics import (
     classification_report,
 )
 
-from ml.ml_model import create_model
+from ml.ml_model import (
+    create_model,
+)
+
+from ml.model_repository import (
+    ACTIVE_MODEL_PATH,
+    create_candidate_model_path,
+    save_model_data_atomic,
+)
+
 from ml.selected_model_config import (
     get_selected_model_config,
 )
@@ -18,10 +27,6 @@ from ml.selected_model_config import (
 
 DATASET_PATH = (
     "ml/training_dataset.csv"
-)
-
-MODEL_PATH = (
-    "ml/trained_model.pkl"
 )
 
 
@@ -52,7 +57,10 @@ def validate_training_dataset(
         )
 
 
-def train_model():
+def train_model(
+    output_path=None,
+    model_role="active",
+):
     config = (
         get_selected_model_config()
     )
@@ -363,16 +371,38 @@ def train_model():
         ),
 
         "model_params": model.get_params(),
+
+        "model_role": (
+            model_role
+        ),
+
+        "model_path": None,
     }
 
-    joblib.dump(
-        model_data,
-        MODEL_PATH,
+    if output_path is None:
+        output_path = (
+            ACTIVE_MODEL_PATH
+        )
+
+    model_data[
+        "model_path"
+    ] = str(
+        output_path
+    )
+
+    save_model_data_atomic(
+        model_data=model_data,
+        model_path=output_path,
     )
 
     print(
         "\n모델 저장 완료: "
-        f"{MODEL_PATH}"
+        f"{output_path}"
+    )
+
+    print(
+        f"모델 역할: "
+        f"{model_role}"
     )
 
     print(
@@ -397,5 +427,39 @@ def train_model():
     return model_data
 
 
+def parse_arguments():
+    parser = argparse.ArgumentParser(
+        description=(
+            "ML 모델 학습"
+        )
+    )
+
+    parser.add_argument(
+        "--candidate",
+        action="store_true",
+        help=(
+            "후보 모델 생성"
+        ),
+    )
+
+    return parser.parse_args()
+
+
 if __name__ == "__main__":
-    train_model()
+    args = parse_arguments()
+
+    if args.candidate:
+        candidate_path = (
+            create_candidate_model_path()
+        )
+
+        train_model(
+            output_path=candidate_path,
+            model_role="candidate",
+        )
+
+    else:
+        train_model(
+            output_path=ACTIVE_MODEL_PATH,
+            model_role="active",
+        )
