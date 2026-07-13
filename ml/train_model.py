@@ -1,6 +1,10 @@
 import joblib
 import pandas as pd
 
+from datetime import (
+    datetime,
+)
+
 from sklearn.metrics import (
     accuracy_score,
     classification_report,
@@ -305,32 +309,60 @@ def train_model():
 
     model_data = {
         "model": model,
+
         "subset_name": (
-            config[
-                "subset_name"
-            ]
+            config["subset_name"]
         ),
+
         "features": list(
             features
         ),
+
         "threshold": float(
             threshold
         ),
+
         "holding_days": int(
-            config[
-                "holding_days"
-            ]
+            config["holding_days"]
         ),
+
         "top_n_signals": int(
-            config[
-                "top_n_signals"
-            ]
+            config["top_n_signals"]
         ),
+
         "max_open_positions": int(
-            config[
-                "max_open_positions"
-            ]
+            config["max_open_positions"]
         ),
+
+        "trained_at": datetime.now().isoformat(
+            timespec="seconds"
+        ),
+
+        "train_start_date": str(
+            train_df["Date"]
+            .min()
+            .date()
+        ),
+
+        "train_end_date": str(
+            train_df["Date"]
+            .max()
+            .date()
+        ),
+
+        "validation_start_date": str(
+            test_df["Date"]
+            .min()
+            .date()
+        ),
+
+        "validation_end_date": str(
+            test_df["Date"]
+            .max()
+            .date()
+        ),
+
+        "model_params": model.get_params(),
     }
 
     joblib.dump(
@@ -344,10 +376,23 @@ def train_model():
     )
 
     print(
-        "저장 형식: "
-        "모델 + Feature + Threshold + "
-        "거래 설정"
+        f"학습 시각: "
+        f"{model_data['trained_at']}"
     )
+
+    print(
+        "모델 파라미터:"
+    )
+
+    for key, value in (
+        model_data[
+            "model_params"
+        ]
+        .items()
+    ):
+        print(
+            f"  {key}: {value}"
+        )
 
     return model_data
 
