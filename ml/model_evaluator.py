@@ -28,6 +28,9 @@ from ml.model_repository import (
     load_model_data,
     promote_candidate_model,
 )
+from ml.walk_forward_evaluator import (
+    evaluate_model_walk_forward,
+)
 
 
 DATASET_PATH = Path(
@@ -917,6 +920,42 @@ def evaluate_candidate_model(
         )
     )
 
+    print(
+        "\n4. 운영 모델 Walk Forward 평가"
+    )
+
+    active_walk_forward_result = (
+        evaluate_model_walk_forward(
+            model_data=(
+                active_model_data
+            ),
+            df=df,
+            print_result=False,
+        )
+    )
+
+    print(
+        "운영 모델 Walk Forward 평가 완료"
+    )
+
+    print(
+        "\n5. 후보 모델 Walk Forward 평가"
+    )
+
+    candidate_walk_forward_result = (
+        evaluate_model_walk_forward(
+            model_data=(
+                candidate_model_data
+            ),
+            df=df,
+            print_result=False,
+        )
+    )
+
+    print(
+        "후보 모델 Walk Forward 평가 완료"
+    )
+
     promotion_decision = (
         decide_promotion(
             active_metrics=(
@@ -929,6 +968,9 @@ def evaluate_candidate_model(
     )
 
     evaluation_result = {
+        "evaluation_method": (
+            "holdout_and_walk_forward"
+        ),
         "evaluated_at": (
             datetime.now().isoformat(
                 timespec="seconds"
@@ -974,6 +1016,12 @@ def evaluate_candidate_model(
         ),
         "candidate_metrics": (
             candidate_metrics
+        ),
+        "active_walk_forward": (
+            active_walk_forward_result
+        ),
+        "candidate_walk_forward": (
+            candidate_walk_forward_result
         ),
         "promotion_decision": (
             promotion_decision
@@ -1030,6 +1078,95 @@ def evaluate_candidate_model(
     print_model_metrics(
         title="후보 모델 평가",
         metrics=candidate_metrics,
+    )
+
+    active_walk_forward_summary = (
+        active_walk_forward_result[
+            "window_summary"
+        ]
+    )
+
+    candidate_walk_forward_summary = (
+        candidate_walk_forward_result[
+            "window_summary"
+        ]
+    )
+
+    active_walk_forward_metrics = (
+        active_walk_forward_result[
+            "aggregate_metrics"
+        ]
+    )
+
+    candidate_walk_forward_metrics = (
+        candidate_walk_forward_result[
+            "aggregate_metrics"
+        ]
+    )
+
+    print(
+        "\n"
+        + "-"
+        * 80
+    )
+
+    print(
+        "Walk Forward 비교 요약"
+    )
+
+    print(
+        "-"
+        * 80
+    )
+
+    print(
+        "운영 모델 양수 Window 비율: "
+        f"{active_walk_forward_summary['positive_window_ratio']:.2%}"
+    )
+
+    print(
+        "후보 모델 양수 Window 비율: "
+        f"{candidate_walk_forward_summary['positive_window_ratio']:.2%}"
+    )
+
+    print(
+        "운영 모델 최악 Window 수익률: "
+        f"{active_walk_forward_summary['worst_window_total_return']:.2%}"
+    )
+
+    print(
+        "후보 모델 최악 Window 수익률: "
+        f"{candidate_walk_forward_summary['worst_window_total_return']:.2%}"
+    )
+
+    print(
+        "운영 모델 전체 OOS 거래 수: "
+        f"{active_walk_forward_metrics['trade_count']:,}"
+    )
+
+    print(
+        "후보 모델 전체 OOS 거래 수: "
+        f"{candidate_walk_forward_metrics['trade_count']:,}"
+    )
+
+    print(
+        "운영 모델 전체 OOS 누적 수익률: "
+        f"{active_walk_forward_metrics['total_return']:.2%}"
+    )
+
+    print(
+        "후보 모델 전체 OOS 누적 수익률: "
+        f"{candidate_walk_forward_metrics['total_return']:.2%}"
+    )
+
+    print(
+        "운영 모델 전체 OOS 최대 낙폭: "
+        f"{active_walk_forward_metrics['max_drawdown']:.2%}"
+    )
+
+    print(
+        "후보 모델 전체 OOS 최대 낙폭: "
+        f"{candidate_walk_forward_metrics['max_drawdown']:.2%}"
     )
 
     print(
