@@ -173,3 +173,55 @@ def get_ai_probability(
             ]
 
     return 0
+
+def convert_scan_results_to_ai_candidates(
+    scan_results,
+):
+    candidates = []
+
+    for result in scan_results:
+        ticker = str(
+            result.get("Ticker") or ""
+        ).strip()
+
+        ai_date = result.get("Date")
+
+        if not ticker:
+            continue
+
+        if not is_ai_candidate_fresh(
+            ai_date
+        ):
+            print(
+                "오래된 AI 스캔 결과 제외: "
+                f"{ticker} | "
+                f"기준일 {ai_date}"
+            )
+            continue
+
+        try:
+            ai_probability = float(
+                result.get("Probability")
+            )
+
+            ai_close = float(
+                result.get("Close")
+            )
+
+        except (TypeError, ValueError):
+            print(
+                "잘못된 AI 스캔 결과 제외: "
+                f"{ticker}"
+            )
+            continue
+
+        candidates.append({
+            "ticker": ticker,
+            "ai_probability": (
+                ai_probability
+            ),
+            "ai_close": ai_close,
+            "ai_date": str(ai_date),
+        })
+
+    return candidates

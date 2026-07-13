@@ -1,4 +1,7 @@
-from ai_candidate_loader import load_ai_candidates
+from ai_candidate_loader import (
+    convert_scan_results_to_ai_candidates,
+    load_ai_candidates,
+)
 from market_data.market import analyze_market
 from ml.scan_stocks_model import (
     scan_stocks_model,
@@ -77,13 +80,21 @@ def refresh_ai_candidates():
             f"{len(scan_results)}개 후보 저장"
         )
 
-        return True
+        return {
+            "succeeded": True,
+            "scan_results": scan_results,
+            "error": None,
+        }
 
     except Exception as error:
         print("AI 종목 스캔 실패")
         print(f"오류: {error}")
 
-        return False
+        return {
+            "succeeded": False,
+            "scan_results": [],
+            "error": str(error),
+        }
 
 
 def prepare_market_context():
@@ -91,27 +102,59 @@ def prepare_market_context():
 
     market_result = analyze_market()
 
-    scan_succeeded = refresh_ai_candidates()
+    scan_result = refresh_ai_candidates()
 
-    ai_candidates = load_ai_candidates()
+    if scan_result["succeeded"]:
+        ai_candidates = (
+            convert_scan_results_to_ai_candidates(
+                scan_result["scan_results"]
+            )
+        )
 
-    if not scan_succeeded:
+        ai_candidate_source = (
+            "fresh_scan"
+        )
+
+    else:
         print(
             "AI 스캔에 실패하여 기존의 유효한 "
             "AI 후보 파일을 사용합니다."
         )
 
-    print_ai_candidates(ai_candidates)
+        ai_candidates = load_ai_candidates()
+
+        ai_candidate_source = (
+            "csv_fallback"
+        )
+
+    print_ai_candidates(
+        ai_candidates
+    )
+
+    print(
+        "AI 후보 데이터 출처: "
+        f"{ai_candidate_source}"
+    )
 
     save_ai_observations(
         ai_candidates,
         market_result,
     )
 
-    print_market_result(market_result)
+    print_market_result(
+        market_result
+    )
 
     return {
         "market_result": market_result,
         "ai_candidates": ai_candidates,
-        "ai_scan_succeeded": scan_succeeded,
+        "ai_scan_succeeded": (
+            scan_result["succeeded"]
+        ),
+        "ai_scan_error": (
+            scan_result["error"]
+        ),
+        "ai_candidate_source": (
+            ai_candidate_source
+        ),
     }
