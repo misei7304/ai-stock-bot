@@ -10,6 +10,8 @@ from pathlib import (
     Path,
 )
 
+import pandas as pd
+
 from ml.build_dataset import (
     build_training_dataset,
 )
@@ -82,10 +84,81 @@ def make_json_serializable(
 
     if isinstance(
         value,
+        set,
+    ):
+        return [
+            make_json_serializable(
+                item
+            )
+            for item in sorted(
+                value,
+                key=str,
+            )
+        ]
+
+    if isinstance(
+        value,
+        pd.DataFrame,
+    ):
+        return {
+            "type": "DataFrame",
+            "row_count": int(
+                len(value)
+            ),
+            "column_count": int(
+                len(
+                    value.columns
+                )
+            ),
+            "columns": [
+                str(column)
+                for column
+                in value.columns
+            ],
+        }
+
+    if isinstance(
+        value,
+        pd.Series,
+    ):
+        return [
+            make_json_serializable(
+                item
+            )
+            for item in value.tolist()
+        ]
+
+    if isinstance(
+        value,
+        pd.Index,
+    ):
+        return [
+            make_json_serializable(
+                item
+            )
+            for item in value.tolist()
+        ]
+
+    if isinstance(
+        value,
         Path,
     ):
         return str(
             value
+        )
+
+    if isinstance(
+        value,
+        pd.Timestamp,
+    ):
+        return value.isoformat()
+
+    if isinstance(
+        value,
+        datetime,
+    ):
+        return value.isoformat(
+            timespec="seconds"
         )
 
     if hasattr(
