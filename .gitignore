@@ -19,3 +19,6 @@ ml/*.pkl
 kis/token.json
 # Runtime logs
 logs/
+
+# ML runtime model artifacts
+ml/model_store/
