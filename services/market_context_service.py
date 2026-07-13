@@ -1,5 +1,8 @@
 from ai_candidate_loader import load_ai_candidates
 from market_data.market import analyze_market
+from ml.scan_stocks_model import (
+    scan_stocks_model,
+)
 from storage.ai_observation_database import (
     save_ai_observations,
 )
@@ -61,11 +64,42 @@ def print_market_result(market_result):
         print("시장 상태: 하락장 또는 약세장")
 
 
+def refresh_ai_candidates():
+    print("\n" + "#" * 80)
+    print("AI 종목 스캔")
+    print("#" * 80)
+
+    try:
+        scan_results = scan_stocks_model()
+
+        print(
+            "AI 종목 스캔 완료: "
+            f"{len(scan_results)}개 후보 저장"
+        )
+
+        return True
+
+    except Exception as error:
+        print("AI 종목 스캔 실패")
+        print(f"오류: {error}")
+
+        return False
+
+
 def prepare_market_context():
     print_strategy_config()
 
     market_result = analyze_market()
+
+    scan_succeeded = refresh_ai_candidates()
+
     ai_candidates = load_ai_candidates()
+
+    if not scan_succeeded:
+        print(
+            "AI 스캔에 실패하여 기존의 유효한 "
+            "AI 후보 파일을 사용합니다."
+        )
 
     print_ai_candidates(ai_candidates)
 
@@ -79,4 +113,5 @@ def prepare_market_context():
     return {
         "market_result": market_result,
         "ai_candidates": ai_candidates,
+        "ai_scan_succeeded": scan_succeeded,
     }
