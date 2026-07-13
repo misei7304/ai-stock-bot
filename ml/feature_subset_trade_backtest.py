@@ -1,10 +1,12 @@
+import os
+
 import pandas as pd
+from dotenv import load_dotenv
 
 from ml.feature_subset_backtest import (
     FEATURE_SUBSETS,
     THRESHOLDS,
 )
-
 from ml.ml_model import create_model
 
 DATASET_PATH = (
@@ -16,12 +18,40 @@ RESULT_PATH = (
 )
 
 HOLDING_DAYS = 5
-
 TOP_N_SIGNALS = 3
-
 MAX_OPEN_POSITIONS = 3
-
 START_MONEY = 1_000_000
+
+
+load_dotenv()
+
+
+BUY_FEE_RATE = float(
+    os.getenv(
+        "BUY_FEE_RATE",
+        0.00015,
+    )
+)
+
+SELL_FEE_RATE = float(
+    os.getenv(
+        "SELL_FEE_RATE",
+        0.00195,
+    )
+)
+
+SLIPPAGE_RATE = float(
+    os.getenv(
+        "SLIPPAGE_RATE",
+        0.001,
+    )
+)
+
+TOTAL_TRADING_COST_RATE = (
+    BUY_FEE_RATE
+    + SELL_FEE_RATE
+    + SLIPPAGE_RATE * 2
+)
 
 def validate_dataset(df):
 
@@ -139,6 +169,20 @@ def add_exit_date(
 
     return trade_df
 
+def calculate_net_return(
+    gross_return,
+):
+    gross_return = float(
+        gross_return
+    )
+
+    net_return = (
+        gross_return
+        - TOTAL_TRADING_COST_RATE
+    )
+
+    return net_return
+
 def simulate_portfolio(
     trade_df,
 ):
@@ -225,7 +269,7 @@ def simulate_portfolio(
                     * (
                         1
                         + position[
-                            "Future_Return_5D"
+                            "Net_Return_5D"
                         ]
                     )
                 )
@@ -341,6 +385,13 @@ def simulate_portfolio(
                                     "Future_Return_5D"
                                 ]
                             ),
+                            "Net_Return_5D": (
+                                calculate_net_return(
+                                    trade[
+                                        "Future_Return_5D"
+                                    ]
+                                )
+                            ),
                             "Invested_Amount": float(
                                 money_per_position
                             ),
@@ -404,7 +455,7 @@ def simulate_portfolio(
                 * (
                     1
                     + position[
-                        "Future_Return_5D"
+                        "Net_Return_5D"
                     ]
                 )
             )
@@ -581,7 +632,7 @@ def calculate_trade_metrics(
 
     returns = (
         executed_trade_df[
-            "Future_Return_5D"
+            "Net_Return_5D"
         ]
         .astype(float)
     )
