@@ -22,6 +22,11 @@ CANDIDATE_DIR = (
     / "candidates"
 )
 
+FINAL_CANDIDATE_DIR = (
+    MODEL_STORE_DIR
+    / "final_candidates"
+)
+
 ARCHIVE_DIR = (
     MODEL_STORE_DIR
     / "archive"
@@ -48,6 +53,7 @@ def initialize_model_store():
     for directory in [
         MODEL_STORE_DIR,
         CANDIDATE_DIR,
+        FINAL_CANDIDATE_DIR,
         ARCHIVE_DIR,
         EVALUATION_DIR,
     ]:
@@ -200,6 +206,32 @@ def create_candidate_model_path():
         / (
             "candidate_"
             f"{timestamp}.pkl"
+        )
+    )
+
+
+def create_final_candidate_model_path(
+    candidate_path,
+):
+    initialize_model_store()
+
+    candidate_path = Path(
+        candidate_path
+    )
+
+    timestamp = datetime.now().strftime(
+        "%Y%m%d_%H%M%S"
+    )
+
+    candidate_name = (
+        candidate_path.stem
+    )
+
+    return (
+        FINAL_CANDIDATE_DIR
+        / (
+            f"{candidate_name}_"
+            f"final_{timestamp}.pkl"
         )
     )
 
@@ -403,6 +435,11 @@ if __name__ == "__main__":
     print(
         f"후보 모델 폴더: "
         f"{CANDIDATE_DIR}"
+    )
+
+    print(
+        f"최종 후보 모델 폴더: "
+        f"{FINAL_CANDIDATE_DIR}"
     )
 
     print(

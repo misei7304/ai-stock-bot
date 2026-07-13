@@ -19,10 +19,14 @@ from ml.feature_subset_trade_backtest import (
     calculate_trade_metrics,
     select_non_overlapping_trades,
 )
+from ml.final_model_trainer import (
+    train_final_candidate_model,
+)
 from ml.model_repository import (
     ACTIVE_MODEL_PATH,
     CANDIDATE_DIR,
     EVALUATION_DIR,
+    create_final_candidate_model_path,
     get_model_summary,
     initialize_model_store,
     load_model_data,
@@ -1286,6 +1290,9 @@ def evaluate_candidate_model(
         "promotion_requested": bool(
             promote
         ),
+        "final_retraining_executed": False,
+        "final_candidate_model_path": None,
+        "final_candidate_summary": None,
         "promotion_executed": False,
         "promotion_result": None,
     }
@@ -1516,9 +1523,52 @@ def evaluate_candidate_model(
                 "approved"
             ]
         ):
+            print(
+                "\n승격 승인 후보 전체 데이터 "
+                "최종 재학습 시작"
+            )
+
+            final_candidate_path = (
+                create_final_candidate_model_path(
+                    candidate_path
+                )
+            )
+
+            final_candidate_model_data = (
+                train_final_candidate_model(
+                    candidate_path=(
+                        candidate_path
+                    ),
+                    output_path=(
+                        final_candidate_path
+                    ),
+                    dataset_path=(
+                        DATASET_PATH
+                    ),
+                )
+            )
+
+            evaluation_result[
+                "final_retraining_executed"
+            ] = True
+
+            evaluation_result[
+                "final_candidate_model_path"
+            ] = str(
+                final_candidate_path
+            )
+
+            evaluation_result[
+                "final_candidate_summary"
+            ] = (
+                get_model_summary(
+                    final_candidate_model_data
+                )
+            )
+
             promotion_result = (
                 promote_candidate_model(
-                    candidate_path
+                    final_candidate_path
                 )
             )
 
@@ -1531,7 +1581,17 @@ def evaluate_candidate_model(
             ] = promotion_result
 
             print(
-                "\n후보 모델 승격 완료"
+                "\n최종 후보 모델 승격 완료"
+            )
+
+            print(
+                "평가용 후보 모델: "
+                f"{candidate_path}"
+            )
+
+            print(
+                "전체 데이터 최종 후보: "
+                f"{final_candidate_path}"
             )
 
             print(
