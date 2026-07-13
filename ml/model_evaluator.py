@@ -41,6 +41,12 @@ MINIMUM_TRADE_COUNT = 10
 
 MINIMUM_TOTAL_RETURN_IMPROVEMENT = 0.02
 
+MINIMUM_WALK_FORWARD_TRADE_COUNT = 30
+
+MINIMUM_WALK_FORWARD_RETURN_IMPROVEMENT = 0.02
+
+MINIMUM_POSITIVE_WINDOW_RATIO = 0.50
+
 
 def find_latest_candidate_model():
     initialize_model_store()
@@ -586,6 +592,209 @@ def decide_promotion(
     }
 
 
+def decide_walk_forward_promotion(
+    active_result,
+    candidate_result,
+):
+    active_summary = (
+        active_result[
+            "window_summary"
+        ]
+    )
+
+    candidate_summary = (
+        candidate_result[
+            "window_summary"
+        ]
+    )
+
+    active_metrics = (
+        active_result[
+            "aggregate_metrics"
+        ]
+    )
+
+    candidate_metrics = (
+        candidate_result[
+            "aggregate_metrics"
+        ]
+    )
+
+    active_total_return = float(
+        active_metrics[
+            "total_return"
+        ]
+    )
+
+    candidate_total_return = float(
+        candidate_metrics[
+            "total_return"
+        ]
+    )
+
+    active_max_drawdown = float(
+        active_metrics[
+            "max_drawdown"
+        ]
+    )
+
+    candidate_max_drawdown = float(
+        candidate_metrics[
+            "max_drawdown"
+        ]
+    )
+
+    active_positive_window_ratio = float(
+        active_summary[
+            "positive_window_ratio"
+        ]
+    )
+
+    candidate_positive_window_ratio = float(
+        candidate_summary[
+            "positive_window_ratio"
+        ]
+    )
+
+    active_worst_window_return = float(
+        active_summary[
+            "worst_window_total_return"
+        ]
+    )
+
+    candidate_worst_window_return = float(
+        candidate_summary[
+            "worst_window_total_return"
+        ]
+    )
+
+    active_window_return_std = float(
+        active_summary[
+            "window_total_return_std"
+        ]
+    )
+
+    candidate_window_return_std = float(
+        candidate_summary[
+            "window_total_return_std"
+        ]
+    )
+
+    candidate_trade_count = int(
+        candidate_metrics[
+            "trade_count"
+        ]
+    )
+
+    total_return_improvement = (
+        candidate_total_return
+        - active_total_return
+    )
+
+    conditions = {
+        "minimum_trade_count": (
+            candidate_trade_count
+            >= (
+                MINIMUM_WALK_FORWARD_TRADE_COUNT
+            )
+        ),
+        "total_return_improved": (
+            total_return_improvement
+            >= (
+                MINIMUM_WALK_FORWARD_RETURN_IMPROVEMENT
+            )
+        ),
+        "minimum_positive_window_ratio": (
+            candidate_positive_window_ratio
+            >= MINIMUM_POSITIVE_WINDOW_RATIO
+        ),
+        "positive_window_ratio_not_lower": (
+            candidate_positive_window_ratio
+            >= active_positive_window_ratio
+        ),
+        "worst_window_not_worse": (
+            candidate_worst_window_return
+            >= active_worst_window_return
+        ),
+        "max_drawdown_not_worse": (
+            candidate_max_drawdown
+            >= active_max_drawdown
+        ),
+        "window_return_std_not_higher": (
+            candidate_window_return_std
+            <= active_window_return_std
+        ),
+    }
+
+    approved = all(
+        conditions.values()
+    )
+
+    failed_conditions = [
+        condition_name
+        for (
+            condition_name,
+            passed,
+        )
+        in conditions.items()
+        if not passed
+    ]
+
+    return {
+        "approved": bool(
+            approved
+        ),
+        "conditions": (
+            conditions
+        ),
+        "failed_conditions": (
+            failed_conditions
+        ),
+        "minimum_trade_count": (
+            MINIMUM_WALK_FORWARD_TRADE_COUNT
+        ),
+        "minimum_total_return_improvement": (
+            MINIMUM_WALK_FORWARD_RETURN_IMPROVEMENT
+        ),
+        "minimum_positive_window_ratio": (
+            MINIMUM_POSITIVE_WINDOW_RATIO
+        ),
+        "total_return_improvement": float(
+            total_return_improvement
+        ),
+        "active_total_return": (
+            active_total_return
+        ),
+        "candidate_total_return": (
+            candidate_total_return
+        ),
+        "active_positive_window_ratio": (
+            active_positive_window_ratio
+        ),
+        "candidate_positive_window_ratio": (
+            candidate_positive_window_ratio
+        ),
+        "active_worst_window_return": (
+            active_worst_window_return
+        ),
+        "candidate_worst_window_return": (
+            candidate_worst_window_return
+        ),
+        "active_max_drawdown": (
+            active_max_drawdown
+        ),
+        "candidate_max_drawdown": (
+            candidate_max_drawdown
+        ),
+        "active_window_return_std": (
+            active_window_return_std
+        ),
+        "candidate_window_return_std": (
+            candidate_window_return_std
+        ),
+    }
+
+
 def make_json_serializable(
     value,
 ):
@@ -956,7 +1165,7 @@ def evaluate_candidate_model(
         "후보 모델 Walk Forward 평가 완료"
     )
 
-    promotion_decision = (
+    holdout_promotion_decision = (
         decide_promotion(
             active_metrics=(
                 active_metrics
@@ -966,6 +1175,54 @@ def evaluate_candidate_model(
             ),
         )
     )
+
+    walk_forward_promotion_decision = (
+        decide_walk_forward_promotion(
+            active_result=(
+                active_walk_forward_result
+            ),
+            candidate_result=(
+                candidate_walk_forward_result
+            ),
+        )
+    )
+
+    promotion_decision = {
+        "approved": bool(
+            holdout_promotion_decision[
+                "approved"
+            ]
+            and (
+                walk_forward_promotion_decision[
+                    "approved"
+                ]
+            )
+        ),
+        "holdout": (
+            holdout_promotion_decision
+        ),
+        "walk_forward": (
+            walk_forward_promotion_decision
+        ),
+        "failed_evaluation_methods": [
+            evaluation_method
+            for (
+                evaluation_method,
+                decision,
+            )
+            in {
+                "holdout": (
+                    holdout_promotion_decision
+                ),
+                "walk_forward": (
+                    walk_forward_promotion_decision
+                ),
+            }.items()
+            if not decision[
+                "approved"
+            ]
+        ],
+    }
 
     evaluation_result = {
         "evaluation_method": (
@@ -1184,11 +1441,15 @@ def evaluate_candidate_model(
         * 80
     )
 
+    print(
+        "\n[Holdout 조건]"
+    )
+
     for (
         condition_name,
         passed,
     ) in (
-        promotion_decision[
+        holdout_promotion_decision[
             "conditions"
         ].items()
     ):
@@ -1198,8 +1459,30 @@ def evaluate_candidate_model(
         )
 
     print(
-        "누적 수익률 개선 폭: "
-        f"{promotion_decision['total_return_improvement']:.2%}"
+        "Holdout 누적 수익률 개선 폭: "
+        f"{holdout_promotion_decision['total_return_improvement']:.2%}"
+    )
+
+    print(
+        "\n[Walk Forward 조건]"
+    )
+
+    for (
+        condition_name,
+        passed,
+    ) in (
+        walk_forward_promotion_decision[
+            "conditions"
+        ].items()
+    ):
+        print(
+            f"{condition_name}: "
+            f"{passed}"
+        )
+
+    print(
+        "Walk Forward 누적 수익률 개선 폭: "
+        f"{walk_forward_promotion_decision['total_return_improvement']:.2%}"
     )
 
     if (
@@ -1208,19 +1491,21 @@ def evaluate_candidate_model(
         ]
     ):
         print(
-            "판단: 후보 모델 승격 가능"
+            "\n최종 판단: "
+            "후보 모델 승격 가능"
         )
 
     else:
         print(
-            "판단: 후보 모델 승격 거부"
+            "\n최종 판단: "
+            "후보 모델 승격 거부"
         )
 
         print(
-            "실패 조건: "
+            "실패 평가 방식: "
             + ", ".join(
                 promotion_decision[
-                    "failed_conditions"
+                    "failed_evaluation_methods"
                 ]
             )
         )
