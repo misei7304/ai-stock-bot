@@ -1,15 +1,128 @@
+import joblib
 import pandas as pd
 
-from ml.ml_features import FEATURES
-from ml.ml_model import create_model
+from ml.ml_model import (
+    create_model,
+)
 
+MODEL_PATH = (
+    "ml/trained_model.pkl"
+)
 
-DATASET_PATH = "ml/training_dataset.csv"
-SIGNAL_PATH = "ml/walk_forward_signals.csv"
+DATASET_PATH = (
+    "ml/training_dataset.csv"
+)
+
+SIGNAL_PATH = (
+    "ml/walk_forward_signals.csv"
+)
+
+def load_trained_model_data():
+    model_data = joblib.load(
+        MODEL_PATH
+    )
+
+    if not isinstance(
+        model_data,
+        dict,
+    ):
+        raise ValueError(
+            "저장된 모델 형식이 올바르지 않습니다. "
+            "ml/train_model.py를 다시 실행하세요."
+        )
+
+    required_keys = {
+        "model",
+        "subset_name",
+        "features",
+        "threshold",
+        "holding_days",
+        "top_n_signals",
+        "max_open_positions",
+    }
+
+    missing_keys = (
+        required_keys
+        - set(
+            model_data.keys()
+        )
+    )
+
+    if missing_keys:
+        raise ValueError(
+            "저장된 모델 설정이 부족합니다: "
+            + ", ".join(
+                sorted(
+                    missing_keys
+                )
+            )
+        )
+
+    if not model_data[
+        "features"
+    ]:
+        raise ValueError(
+            "저장된 Feature 목록이 "
+            "비어 있습니다."
+        )
+
+    return model_data
 
 
 def walk_forward_backtest():
+    model_data = (
+        load_trained_model_data()
+    )
+
+    features = list(
+        model_data["features"]
+    )
+
+    selected_threshold = float(
+        model_data["threshold"]
+    )
+
+    subset_name = model_data[
+        "subset_name"
+    ]
+
+    holding_days = int(
+        model_data["holding_days"]
+    )
+
+    top_n_signals = int(
+        model_data["top_n_signals"]
+    )
+
+    max_open_positions = int(
+        model_data["max_open_positions"]
+    )
+
     df = pd.read_csv(DATASET_PATH)
+
+    required_columns = {
+        "Date",
+        "Ticker",
+        "Future_Return_5D",
+        "Target",
+        *features,
+    }
+
+    missing_columns = (
+        required_columns
+        - set(df.columns)
+    )
+
+    if missing_columns:
+        raise ValueError(
+            "Walk-Forward 데이터에 필요한 "
+            "컬럼이 없습니다: "
+            + ", ".join(
+                sorted(
+                    missing_columns
+                )
+            )
+        )
 
     df["Date"] = pd.to_datetime(df["Date"])
     df = df.sort_values(by="Date")
@@ -20,7 +133,15 @@ def walk_forward_backtest():
     test_window = int(len(unique_dates) * 0.1)
     step_size = test_window
 
-    thresholds = [0.50, 0.60, 0.70, 0.80]
+    thresholds = sorted(
+        {
+            0.50,
+            0.60,
+            0.70,
+            0.80,
+            selected_threshold,
+        }
+    )
 
     all_signals = []
     summary_rows = []
@@ -28,6 +149,36 @@ def walk_forward_backtest():
     print("\n" + "#" * 80)
     print("Walk-Forward 반복 검증")
     print("#" * 80)
+
+    print(
+        f"Feature Subset: "
+        f"{subset_name}"
+    )
+
+    print(
+        f"Feature 수: "
+        f"{len(features)}"
+    )
+
+    print(
+        f"Threshold: "
+        f"{selected_threshold:.2f}"
+    )
+
+    print(
+        f"Holding Days: "
+        f"{holding_days}"
+    )
+
+    print(
+        f"Top N Signals: "
+        f"{top_n_signals}"
+    )
+
+    print(
+        f"Max Open Positions: "
+        f"{max_open_positions}"
+    )
 
     fold = 1
 
@@ -48,13 +199,62 @@ def walk_forward_backtest():
             (df["Date"] <= test_end)
         ].copy()
 
-        X_train = train_df[FEATURES].fillna(0)
-        y_train = train_df["Target"]
+        X_train = (
+            train_df[
+                features
+            ]
+            .fillna(0)
+        )
 
-        X_test = test_df[FEATURES].fillna(0)
+        y_train = (
+            train_df[
+                "Target"
+            ]
+        )
+
+        X_test = (
+            test_df[
+                features
+            ]
+            .fillna(0)
+        )
+
+        if X_train.empty:
+            print(
+                f"Fold {fold} | "
+                "학습 데이터 없음"
+            )
+
+            fold += 1
+            continue
+
+        if X_test.empty:
+            print(
+                f"Fold {fold} | "
+                "검증 데이터 없음"
+            )
+
+            fold += 1
+            continue
+
+        if (
+            y_train.nunique()
+            < 2
+        ):
+            print(
+                f"Fold {fold} | "
+                "학습 Target 클래스 부족"
+            )
+
+            fold += 1
+            continue
 
         model = create_model()
-        model.fit(X_train, y_train)
+
+        model.fit(
+            X_train,
+            y_train,
+        )
 
         test_df["Probability"] = model.predict_proba(X_test)[:, 1]
         test_df["Fold"] = fold
@@ -98,6 +298,16 @@ def walk_forward_backtest():
             })
 
             signal_df["Threshold"] = threshold
+            
+            signal_df["Subset_Name"] = subset_name
+
+            signal_df["Holding_Days"] = holding_days
+
+            signal_df["Top_N_Signals"] = top_n_signals
+
+            signal_df["Max_Open_Positions"] = (
+                max_open_positions
+            )
             all_signals.append(signal_df)
 
         fold += 1
